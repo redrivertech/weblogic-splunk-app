@@ -1,0 +1,259 @@
+<view autoCancelInterval="90" isVisible="true" objectMode="SimpleDashboard" onunloadCancelJobs="true" refresh="3600" template="dashboard.html">
+    <label>Machines</label>
+    <module name="SideviewUtils" layoutPanel="appHeader" />  
+    <module name="AccountBar" layoutPanel="appHeader"/>
+    <module name="AppBar" layoutPanel="navigationHeader"/>
+    <module name="Message" layoutPanel="messaging">
+        <param name="filter">*</param>
+        <param name="clearOnJobDispatch">False</param>
+        <param name="maxSize">1</param>
+    </module>
+    <module name="DashboardTitleBar" layoutPanel="viewHeader"/>
+    <module name="Message" layoutPanel="navigationHeader">
+        <param name="filter">splunk.search.job</param>
+        <param name="clearOnJobDispatch">True</param>
+        <param name="maxSize">1</param>
+        <param name="level">warn</param>
+    </module>
+  
+    <module name="URLLoader" layoutPanel="viewHeader" autoRun="True">  
+ 
+        <module name="Search" layoutPanel="panel_row1_col1" autoRun="True">
+        <!--<param name="useHistory">true</param>  -->
+     	    <param name="search">| inputlookup machines.csv</param>   
+    
+    
+            <module name="HTML">
+                <param name="html"><![CDATA[
+                <h3>The dropdown below shows all of the WebLogic machines that Splunk currently has collected information on. Please choose one from the list to populate the rest of the dashboard.</h3>
+                ]]></param>
+            </module>
+    
+
+            <module name="Pulldown">
+                <param name="name">machine</param>
+                <param name="float">left</param>
+                <param name="label">Machine</param>
+                <param name="staticOptions">
+	                <list>
+		                <param name="label">Select One...</param>
+		                <param name="value">n/a</param>
+	                </list>
+	                <list>
+		                <param name="label">All</param>
+		                <param name="value">*</param>
+	                </list>
+	            </param>
+                <param name="valueField">$name$</param>
+
+            	<module name="TimeRangePicker" layoutPanel="panel_row1_col1">
+                	<param name="searchWhenChanged">True</param>
+		        	<param name="selected">Last 60 minutes</param>
+	
+					<!-- START Panels -->
+					<module name="Search">  <!-- Search - "Domains on Machine -->
+						<param name="search">`index_wls` `sourcetype_wls_jmx` host=$machine$ domain=* | dedup domain | rename domain as "Domain Name" | table "Domain Name"
+						</param>
+						<param name="earliest">-24h</param>
+						<param name="latest">now</param>
+						<module name="Pager" layoutPanel="panel_row2_col1">
+							<module name="SimpleResultsTable" layoutPanel="panel_row2_col1" group="Domains on Machine" >
+								<param name="displayRowNumbers">False</param>
+								<param name="entityName">results</param>
+							</module>
+						</module>
+					</module>  <!-- Search - "Domains on Machine -->   
+		
+					<module name="Search">  <!-- Search - "Servers on Machine -->
+						<param name="search">`index_wls` `sourcetype_wls_jmx` host=$machine$ server=* | dedup server | rename server as "Server Name" | table "Server Name" 
+						</param>
+						<param name="earliest">-24h</param>
+						<param name="latest">now</param>
+						<module name="Pager" layoutPanel="panel_row2_col2">
+							<module name="SimpleResultsTable" layoutPanel="panel_row2_col2" group="Servers on Machine" >
+								<param name="displayRowNumbers">False</param>
+								<param name="entityName">results</param>
+								<param name="drilldown">row</param>          
+								<module name="Redirector">
+									<param name="url">server_overview</param>
+									<param name="arg.server">$click.fields.Server Name$</param>
+									<param name="arg.domain">$domain$</param>
+								</module>         
+							</module>
+						</module>
+					</module>  <!-- Search - "Servers on Machine -->      
+	
+					<module name="Search">  <!-- Search - "Applications on Machine -->
+						<param name="search">`index_wls` `sourcetype_wls_jmx` host=$machine$ app=* | dedup app | rename app as "Application Name" | table "Application Name" 
+						</param>
+						<param name="earliest">-24h</param>
+						<param name="latest">now</param>
+						<module name="Pager" layoutPanel="panel_row2_col3">
+							<module name="SimpleResultsTable" layoutPanel="panel_row2_col3" group="Applications on Machine" >
+								<param name="displayRowNumbers">False</param>
+								<param name="entityName">results</param>
+								<param name="drilldown">row</param>          
+								<module name="Redirector">
+									<param name="url">applications</param>
+									<param name="arg.app">$click.fields.Application Name$</param>
+									<param name="arg.domain">$domain$</param>
+								</module>         
+							</module>
+						</module>
+					</module>  <!-- Search - "Applications on Machine -->
+	
+					<module name="Search" layoutPanel="panel_row3_col1" group="% CPU Load">  <!-- Search - "% CPU Load"-->
+						<param name="search">`index_os` tag=cpu host=$machine$ | multikv fields pctIdle | eval cpu_nix = 100-pctIdle 
+						| eval cpu_win = round(Value,2) | eval cpu_used = (if(sourcetype="cpu",cpu_nix,cpu_win))
+						| timechart eval(round(avg(cpu_used),2)) AS "Avg CPU" eval(round(min(cpu_used),2)) AS "Min CPU" eval(round(max(cpu_used),2)) AS "Max CPU" 
+						</param>
+						<module name="HiddenChartFormatter">
+							<param name="charting.axisTitleY.text">% CPU Load</param>
+							<param name="charting.secondaryAxis.minimumNumber">"0"</param>
+							<param name="charting.chart">line</param>
+							<param name="charting.chart.stackMode">default</param>
+							<param name="charting.legend.placement">bottom</param>
+							<param name="charting.chart.nullValueMode">connect</param>
+							<param name="charting.axisTitleX.text">Time</param>
+							<param name="charting.secondaryAxis.maximumNumber">"100"</param>
+							<param name="charting.secondaryAxis.scale">""</param>
+							<param name="charting.layout.splitSeries">false</param>
+							<module name="JSChart">
+								<param name="width">100%</param>
+								<module name="Gimp"/>
+								<!-- 
+								<module name="ConvertToDrilldownSearch">
+									<module name="Redirector">
+										<param name="url">server_drilldown_system_health</param>
+										<param name="arg.server">$server$</param>
+										<param name="arg.machine">$machine$</param>
+									</module>
+								</module>   Removing drilldown capability -->
+							</module>
+							<module name="ViewRedirectorLink">
+								<param name="viewTarget">flashtimeline</param>
+							</module>
+						</module>
+		  </module>  <!-- Search "% CPU Load"--> 
+	
+					<module name="Search" layoutPanel="panel_row3_col2" group="Memory Available (MB)">  <!-- Search - "Memory Available (MB) -->
+						<param name="search">`index_os` host=$machine$ sourcetype=vmstat OR sourcetype="Perfmon:Memory" | multikv fields memFreeMB | eval mem_nix = memFreeMB 
+						| eval mem_win = if(counter="Available MBytes",Value,0) | eval mem_avail = if(sourcetype="Perfmon:Memory",mem_win,mem_nix) 
+						| timechart avg(mem_avail) AS "Avg available" min(mem_avail) AS "Min available" max(mem_avail) AS "Max available" 
+						</param>
+						<module name="HiddenChartFormatter">
+							<param name="charting.axisTitleY.text">Available Memory MB</param>
+							<param name="charting.secondaryAxis.minimumNumber">"0"</param>
+							<param name="charting.chart">line</param>
+							<param name="charting.chart.stackMode">default</param>
+							<param name="charting.legend.placement">bottom</param>
+							<param name="charting.chart.nullValueMode">connect</param>
+							<param name="charting.axisTitleX.text">Time</param>
+							<param name="charting.secondaryAxis.maximumNumber">"100"</param>
+							<param name="charting.secondaryAxis.scale">""</param>
+							<param name="charting.layout.splitSeries">false</param>
+							<module name="JSChart">
+								<param name="width">100%</param>
+								<module name="Gimp"/>
+								<!--  
+								<module name="ConvertToDrilldownSearch">
+									<module name="Redirector">
+										<param name="url">server_drilldown_system_health</param>
+										<param name="arg.server">$server$</param>
+										<param name="arg.machine">$machine$</param>
+									</module>
+								</module>
+								-->
+							</module>
+							<module name="ViewRedirectorLink">
+								<param name="viewTarget">flashtimeline</param>
+							</module>
+						</module>
+					</module>  <!-- Search - "Memory Available (MB) -->
+	  
+					<module name="Search" layoutPanel="panel_row4_col1" group="% CPU Used by Process">  <!-- Search - "% CPU Used by Process" --> 
+						<param name="search">`index_os` tag=top host=$machine$ | multikv fields pctCPU COMMAND | timechart avg(pctCPU) by COMMAND
+						</param>
+						<module name="HiddenChartFormatter">
+							<param name="charting.axisTitleY.text">% Used</param>
+							<param name="charting.secondaryAxis.minimumNumber">""</param>
+							<param name="charting.chart">line</param>
+							<param name="charting.chart.stackMode">default</param>
+							<param name="charting.legend.placement">bottom</param>
+							<param name="charting.chart.nullValueMode">connect</param>
+							<param name="charting.axisTitleX.text">Time</param>
+							<param name="charting.secondaryAxis.maximumNumber">""</param>
+							<param name="charting.secondaryAxis.scale">""</param>
+							<param name="charting.layout.splitSeries">false</param>
+							<module name="JSChart">
+								<param name="width">100%</param>
+								<!-- This is code for the drill down
+								<module name="Gimp"/>
+								<module name="ConvertToDrilldownSearch">
+									<module name="Redirector">
+										<param name="url">server_overview</param>
+										<param name="arg.server">$click.fileds.server$</param>
+										<param name="arg.machine">$machine$</param>
+									</module>
+								</module>
+								<param name="drilldown">row</param>
+								<module name="Redirector">
+									<param name="url">server_overview</param>
+									<param name="arg.machine">$machine$</param>
+									<param name="arg.domain">$domain$</param>
+									<param name="arg.server">$click.fields.server$</param>
+								</module>  -->
+							</module>  
+							<module name="ViewRedirectorLink">
+								<param name="viewTarget">flashtimeline</param>
+							</module> 
+						</module>
+					</module>  <!-- Search - "% CPU Used by Process" --> 
+
+					<module name="Search" layoutPanel="panel_row4_col2" group="% JVM Heap Used by Server">  <!-- Search - "% JVM Heap Used by Server" -->
+						<param name="search">`index_wls` `sourcetype_wls_jmx`  host=$machine$  heap_free_percent=*
+						| eval used_mem = (100 - heap_free_percent)
+						| timechart max(used_mem) AS "% heap used" by domain
+						</param>
+						<module name="HiddenChartFormatter">
+							<param name="charting.axisTitleY.text">% Used</param>
+							<param name="charting.secondaryAxis.minimumNumber">""</param>
+							<param name="charting.chart">line</param>
+							<param name="charting.chart.stackMode">default</param>
+							<param name="charting.legend.placement">bottom</param>
+							<param name="charting.chart.nullValueMode">connect</param>
+							<param name="charting.axisTitleX.text">Time</param>
+							<param name="charting.secondaryAxis.maximumNumber">""</param>
+							<param name="charting.secondaryAxis.scale">""</param>
+							<param name="charting.layout.splitSeries">false</param>
+							<module name="JSChart">
+								<param name="width">100%</param>
+								<!-- This is code for the drill down
+								<module name="Gimp"/>
+								<module name="ConvertToDrilldownSearch">
+									<module name="Redirector">
+										<param name="url">server_overview</param>
+										<param name="arg.server">$click.fileds.server$</param>
+										<param name="arg.machine">$machine$</param>
+									</module>
+								</module>
+								<param name="drilldown">row</param>
+								<module name="Redirector">
+									<param name="url">server_overview</param>
+									<param name="arg.machine">$machine$</param>
+									<param name="arg.domain">$domain$</param>
+									<param name="arg.server">$click.fields.server$</param>
+								</module>  -->
+							</module>  
+							<module name="ViewRedirectorLink">
+								<param name="viewTarget">flashtimeline</param>
+							</module> 
+						</module>
+					</module>  <!-- Search - "% JVM Heap Used by Server" -->
+					<!-- END Panels -->
+
+	  			</module> <!-- TimeRangePicker --> 
+    		</module> <!-- Pulldown --> 
+  		</module> <!-- Search -->
+  	</module> <!-- URLLoader -->
+</view>

@@ -1,0 +1,247 @@
+<view autoCancelInterval="90" isVisible="true" objectMode="SimpleDashboard" onunloadCancelJobs="true" refresh="-1" template="dashboard.html">
+	<label>JMS Queue Status</label>
+	<module name="SideviewUtils" layoutPanel="appHeader" />
+	<module name="AccountBar" layoutPanel="appHeader"/>
+	<module name="AppBar" layoutPanel="navigationHeader"/>
+	<module name="Message" layoutPanel="messaging">
+		<param name="filter">*</param>
+		<param name="clearOnJobDispatch">False</param>
+		<param name="maxSize">1</param>
+	</module>
+	<module name="DashboardTitleBar" layoutPanel="viewHeader"/>
+	<module name="Message" layoutPanel="navigationHeader">
+		<param name="filter">splunk.search.job</param>
+		<param name="clearOnJobDispatch">True</param>
+		<param name="maxSize">1</param>
+		<param name="level">warn</param>
+	</module>
+
+	<module name="URLLoader" layoutPanel="panel_row1_col1" autoRun="True">  
+	
+		<module name="Search" layoutPanel="panel_row1_col1" autoRun="True">
+ 			<!-- <param name="useHistory">true</param>  -->
+			<param name="search">| inputlookup domains.csv</param>  
+	
+			<module name="Pulldown">
+				<param name="name">domain</param>
+				<param name="float">left</param>
+				<param name="label">Domain</param>
+				<param name="staticOptions">
+					<list>
+						<param name="label">Select One...</param>
+						<param name="value">n/a</param>
+					</list>
+					<list>
+						<param name="label">All</param>
+						<param name="value">*</param>
+					</list>
+				</param>
+				<param name="valueField">$name$</param>
+	
+				<module name="Search" layoutPanel="panel_row1_col1" autoRun="True">
+				<!-- <param name="useHistory">true</param>  -->
+					<!-- The search below which returns a list of servers for the selected domains should be able to be found based on information from the Minute script.  Search is set to go back one hour just to be on the safe side, but technically 15 min. should be enough -->
+					<param name="search">`index_wls` `sourcetype_wls_jmx` earliest=-1h domain=$domain$ server=* | dedup server | sort server | fields server</param>    
+					
+					<module name="Pulldown">
+						<param name="name">server</param>
+						<param name="float">left</param>
+						<param name="label">Server</param>
+						<param name="staticOptions">
+							<list>
+								<param name="label">Select One...</param>
+								<param name="value">n/a</param>
+							</list>
+						</param>		
+						<param name="valueField">$name$</param>
+						
+						<module name="TimeRangePicker" layoutPanel="panel_row1_col1">
+							<param name="searchWhenChanged">True</param>
+							<param name="selected">Last 60 minutes</param>
+		  
+							<module name="Search" layoutPanel="panel_row2_col1" group="Destination Count" autoRun="True">
+								<!-- The data for this search comes from the hourly script and shows current status so is time independent, therefore timerange is hard-coded in search -->
+								<param name="search">`index_wls` `sourcetype_wls_jmx` domain=$domain$ server=$server$ jms_destination_count=* earliest=-2h | stats first(jms_destination_count) AS jms_dest_count</param>
+								<param name="groupLabel">Destination Count</param>
+								<module name="ViewstateAdapter">
+									<param name="suppressionList">
+										<item>count</item>
+										<item>displayRowNumbers</item>
+										</param>
+									<module name="HiddenFieldPicker">
+										<param name="strictMode">True</param>
+										<module name="JobProgressIndicator">
+											<module name="SingleValue">
+												<module name="Gimp"/>
+											</module>
+										</module>
+									</module>
+								</module>
+							</module> <!-- Search Destination Count -->
+		
+							<module name="Search" layoutPanel="panel_row2_col2" group="Current Connection Count" autoRun="True">
+								<!-- The data for this search comes from the minute script and shows current status so is time independent, therefore timerange is hard-coded in search -->
+								<param name="search">`index_wls` `sourcetype_wls_jmx` domain=$domain$ server=$server$ earliest=-15m jms_current_connection_count=* | stats first(jms_current_connection_count) AS connection_count</param>
+								<param name="groupLabel">Current Connection Count</param>
+								<module name="ViewstateAdapter">
+									<param name="suppressionList">
+										<item>count</item>
+										<item>displayRowNumbers</item>
+									</param>
+									<module name="HiddenFieldPicker">
+										<param name="strictMode">True</param>
+										<module name="JobProgressIndicator">
+											<module name="SingleValue">
+												<module name="Gimp"/>
+											</module>
+										</module>
+									</module>
+								</module>
+							</module> <!-- Search - Current Connection Count -->
+		
+							<module name="Search" layoutPanel="panel_row3_col1" group="Total Connections over Time" autoRun="True">
+								<param name="search">`index_wls` `sourcetype_wls_jmx` domain=$domain$ server=$server$ jms_total_connections=* | timechart max(jms_total_connections) AS "Total Connections"</param>
+								<param name="groupLabel">Total Connections over Time</param>
+								<module name="ViewstateAdapter">
+									<param name="suppressionList">
+										<item>count</item>
+										<item>charting.axisTitleY.text</item>
+										<item>charting.chart</item>
+										<item>charting.secondaryAxisTitle.text</item>
+										<item>charting.primaryAxisTitle.text</item>
+										<item>displayRowNumbers</item>
+										<item>charting.chart.nullValueMode</item>
+										<item>charting.axisTitleX.text</item>
+									</param>
+									<module name="HiddenFieldPicker">
+										<param name="strictMode">True</param>
+										<module name="JobProgressIndicator">
+											<module name="EnablePreview">
+												<param name="enable">True</param>
+												<param name="display">False</param>
+												<module name="HiddenChartFormatter">
+													<param name="charting.axisTitleY.text">Connections</param>
+													<param name="charting.chart">line</param>
+													<param name="charting.chart.nullValueMode">connect</param>
+													<param name="charting.axisTitleX.text">Time</param>
+													<param name="charting.legend.placement">bottom</param>
+													<module name="JSChart">
+														<param name="width">100%</param>
+														<module name="Gimp"/>
+														<module name="ConvertToDrilldownSearch">
+															<module name="ViewRedirector">
+																<param name="viewTarget">flashtimeline</param>
+															</module>
+														</module>
+													</module>
+													<module name="ViewRedirectorLink">
+														<param name="viewTarget">flashtimeline</param>
+													</module>
+												</module>
+											</module>
+										</module>
+									</module> <!-- HiddenFieldPicker -->
+								</module> <!-- ViewstateAdapter -->
+							</module> <!-- Search - Total Connections Over Time -->
+		
+							<module name="Search" layoutPanel="panel_row4_col1" group="Messages Received Over Time" autoRun="True">
+								<param name="search">`index_wls` `sourcetype_wls_jmx` domain=$domain$ server=$server$ jms_messages_received_count=* | timechart max(jms_messages_received_count) AS "Messages Received"</param>
+								<param name="groupLabel">Messages Received Over Time</param>
+								<module name="ViewstateAdapter">
+									<param name="suppressionList">
+										<item>count</item>
+										<item>charting.axisTitleY.text</item>
+										<item>charting.chart</item>
+										<item>charting.secondaryAxisTitle.text</item>
+										<item>charting.primaryAxisTitle.text</item>
+										<item>displayRowNumbers</item>
+										<item>charting.axisTitleX.text</item>
+									</param>
+									<module name="HiddenFieldPicker">
+										<param name="strictMode">True</param>
+										<module name="JobProgressIndicator">
+											<module name="EnablePreview">
+												<param name="enable">True</param>
+												<param name="display">False</param>
+												<module name="HiddenChartFormatter">
+													<param name="charting.axisTitleY.text">Messages</param>
+													<param name="charting.chart">line</param>
+													<param name="charting.axisTitleX.text">Time</param>
+													<param name="charting.chart.nullValueMode">connect</param>
+													<param name="charting.legend.placement">bottom</param>
+													<module name="JSChart">
+														<param name="width">100%</param>
+														<module name="Gimp"/>
+														<module name="ConvertToDrilldownSearch">
+															<module name="ViewRedirector">
+																<param name="viewTarget">flashtimeline</param>
+															</module>
+														</module>
+													</module>
+													<module name="ViewRedirectorLink">
+														<param name="viewTarget">flashtimeline</param>
+													</module>
+												</module>
+											</module>
+										</module>
+									</module>
+								</module>
+							</module> <!-- Search Messages Received Over Time -->
+		
+							<module name="Search" layoutPanel="panel_row4_col2" group="Pending Messages over Time" autoRun="True">
+								<param name="search">`index_wls` `sourcetype_wls_jmx` domain=$domain$ server=$server$ jms_pending_messages_count=* | timechart max(jms_pending_messages_count) AS "Pending Messages"</param>
+								<param name="groupLabel">Pending Messages over Time</param>
+								<module name="ViewstateAdapter">
+									<param name="suppressionList">
+										<item>count</item>
+										<item>charting.axisTitleY.text</item>
+										<item>charting.chart</item>
+										<item>charting.secondaryAxisTitle.text</item>
+										<item>charting.primaryAxisTitle.text</item>
+										<item>displayRowNumbers</item>
+										<item>charting.axisTitleX.text</item>
+									</param>
+									<module name="HiddenFieldPicker">
+										<param name="strictMode">True</param>
+										<module name="JobProgressIndicator">
+											<module name="EnablePreview">
+												<param name="enable">True</param>
+												<param name="display">False</param>
+												<module name="HiddenChartFormatter">
+													<param name="charting.chart.nullValueMode">connect</param>
+													<param name="charting.axisTitleY.text">Messages</param>
+													<param name="charting.chart">line</param>
+													<param name="charting.axisTitleX.text">Time</param>
+													<param name="charting.legend.placement">bottom</param>
+													<module name="JSChart">
+														<param name="width">100%</param>
+														<module name="Gimp"/>
+														<module name="ConvertToDrilldownSearch">
+															<module name="ViewRedirector">
+																<param name="viewTarget">flashtimeline</param>
+															</module>
+														</module>
+													</module>
+													<module name="ViewRedirectorLink">
+														<param name="viewTarget">flashtimeline</param>
+													</module>
+												</module>
+											</module>
+										</module>
+									</module>
+								</module>
+							</module> <!-- Search - Pending Messages Over Time -->
+							
+						</module> <!-- Time Range Picker -->
+						
+					</module> <!-- Pulldown - Servers --> 
+					
+				</module> <!-- Search - Servers List --> 
+		
+			</module> <!-- Pulldown - Domains -->
+	
+		</module> <!-- Search Domains List -->
+		
+	</module> <!-- URL Loader -->
+	
+</view>

@@ -1,0 +1,491 @@
+/**********************************
+Base color palette
+***********************************/
+
+
+/* default background color */
+
+body {
+    background-color: #777;
+}
+
+body.splTemplate-dashboard {
+    background-color: #777;
+}
+
+
+/* default text color
+_________________________________*/
+body,  {
+    color: #333;
+}
+
+body, div,
+h1, h2, h3, h4, 
+td, th,
+.EventsViewer .default .event,
+.LinkSwitcher ul li.selected a
+{
+    color: #333;
+}
+
+.fieldValuePopup table th, .fieldValuePopup table td {
+    color: #333;
+}
+
+
+/* navy blue 
+_________________________________*/
+
+
+.splHeader.splHeader-dashboard h2, 
+.dashboardContent .ServerSideInclude h2,
+body.splTemplate-dashboard .TitleBar h2 {
+    color: #000033;
+}
+
+
+.GenericHeader h3 {
+    font-weight: bold;
+    color:#000033;
+}
+
+.ui-datepicker-current-day {
+    background-color: #000033;
+}
+
+
+
+/* default links and search button 
+_________________________________*/
+
+a, a:active, a:visited, 
+.EventsViewer .default .showinline,
+.splMenu-primary a:hover {
+    color:#263442;
+}
+
+
+.mouseoverHighlight .fieldName {
+    color:#FFF;
+}
+
+.mouseoverHighlight .iconString {
+    color:#DDD;
+}
+
+.mouseoverHighlight .iconNumeric {
+    color:#DDD;
+}
+
+.mouseoverHighlight .valueCount {
+    color:#DDD;
+}
+
+.SearchBar .assistantActivator {
+background-color:#EA3C2E;
+}
+
+/* orange 
+_________________________________*/
+
+
+
+
+
+/* app name */
+
+.appHeaderWrapper h1 {
+    color:#263442;
+}
+
+
+
+
+
+/**********************************
+App header and links
+***********************************/
+
+
+/* app header wrapper */
+
+.appHeaderWrapper {
+    background: url(bg_appHeaderWrapper.png) repeat-x;
+}
+
+.AccountBar .appLogoContainer {
+
+}
+
+/* change the app logo here.  set the height/width for your image, as well as the path to the image */
+.appLogo {
+    height: 43px; 
+    width: 55px;
+    padding-right: 0px;
+    float: left;
+    background: url(appLogo.png) no-repeat 0 0;
+}
+
+/* 
+use this to display the name of the app. 
+use line-height to adjust alignment with logo. if
+if the name of the app is in the logo,  set this to display: none;  
+
+.appHeaderWrapper h1 {
+    display: none;
+} 
+*/
+
+/*--- top-right text and links ---*/
+
+
+.accountBarItems a, .accountBarItems a:active, .accountBarItems a:visited {
+color: #000;
+}
+
+.splIcon-triangle-3-s {
+background-position: -67px -367px;
+}
+
+
+/**********************************
+Nav bar and aux links
+***********************************/
+
+/*--- the default state ---*/
+
+
+
+.splHeader.splHeader-navigation {
+    border-top: 0px solid #263442;
+    border-bottom: 0px solid #263442;
+    background-image: url(bg_nav_default.png);
+    background-repeat: repeat-x;
+
+}
+
+ul.appBarNav li a, ul.appBarNav li a:active, ul.appBarNav li a:visited  {
+    color: #FFF;
+    font-size: 11px;
+    border-right: 0px solid #263442;
+}
+
+/*--- the hover state ---*/
+
+ul.appBarNav li.hasMenu a:hover, ul.appBarNav li a:hover {
+    background-image: url(bg_nav_hover.png);
+    color: #FFF;
+}
+
+/*--- the open state ---*/
+
+ul.appBarNav li a.menuOpen {
+    background-image: url(bg_nav_on.png);
+    color: #263442;
+}
+
+/*--- link color ---*/
+
+ul.appBarNav li.hasMenu a:hover, ul.appBarNav li a.menuOpen {
+    color: #000;
+}
+
+
+
+/* auxiliary text and links */
+
+.AppBar .auxLinks a {
+    color: #FFF;
+}
+
+.AppBar .auxLinks span {
+    color: #263442;
+}
+
+
+/**********************************
+Menus 
+***********************************/
+
+.TitleBar div.menuOpen, .TitleBar a.menuOpen {
+background-color: #EA3C2E;
+color: #FFF;
+}
+
+/* primary menu */
+
+.splMenu-primary ul {
+    background-color: #fff;
+    border-color: #EA3C2E;
+}
+
+.splMenu-primary, .splMenu-primary a, .splMenu-primary a:visited, .splMenu-primary a:hover {
+    color: #000;
+}
+
+.splMenu-primary .actionsMenuDivider {
+    border-color: #EA3C2E;
+}
+
+.splMenu-primary li:hover {
+    background-color: #EA3C2E;
+    background-image: none;
+}
+
+.splMenu-primary a:hover {
+    color: #FFF;
+}
+
+.splMenu-primary .disabled a:hover {
+    color: #DDD;
+}
+
+/* secondary menu, used for apps pulldown */
+.splMenu-secondary ul {
+    background-color: #fff;
+    border-color: #EA3C2E;
+}
+
+.splMenu-secondary, .splMenu-secondary a {
+    color: #000;
+}
+.splMenu-secondary li.disabled a {
+    color:#666;
+}   
+
+.splMenu-secondary li:hover {
+    background-color: #EA3C2E;
+    background-image: none;
+}
+
+.splMenu-secondary a:hover {
+    color: #FFF;   
+}
+
+/* move the nav menu 1px to the left for border alignment */
+
+.splHeader-navigation .splMenu ul {
+    margin-left: -1px !important;
+}
+
+.splMenu ul div.innerMenuWrapper {
+padding: 0px 0px;
+width: 160px;
+}
+
+/* black arrow for menu */
+
+.splIcon-triangle-2-s {
+background-position:-67px -367px;
+}
+
+div.FlashTimeline a.linLogToggle .splIcon-triangle-4-s {
+background-position: -67px -367px;
+}
+
+/**********************************
+search title and area
+***********************************/
+
+.TitleBar .splHeader, .splBackground-primary, .viewHeader, .mainSearchControls, .splSearchControls-inline, .reportBuilder, .reportFirstPanel {
+background: url(bg_appHeaderWrapper.png) repeat-x;
+}
+
+/* search input border color */
+.SearchBar .searchFieldWrapperInner {
+border-color:#EA3C2E;
+}
+
+/* search button color; background-position of 0 0 is black >, -40px 0 is white */
+input.searchButton {
+    background-color: #EA3C2E;
+    background-position:-40px 0;   
+}
+
+
+/**********************************
+Flash timeline and charts
+***********************************/
+
+/* All flash charts */
+/*
+  background-color -> controls bgcolor
+  border-left-color -> controls foregroundColor
+  color -> controls fontColor
+*/
+div.FlashChart {
+    background-color: #fff;
+    color: #000;
+    border-left-color: #000;
+}
+
+/* flash timeline specific */
+/*
+  background-color -> controls bgcolor
+  border-left-color -> controls foregroundColor
+  color -> controls fontColor
+  border-right-color -> controls seriesColor
+*/
+div.FlashTimeline {
+    background-color: #fff;
+    border-left-color: #000;
+    color: #000;
+    /* the color of the histogram bar. border-right-color = fill */
+    border-right-color: #EA3C2E; 
+}
+
+.controlLinks {
+    margin-bottom: 5px;
+}
+
+/* popup bar chart; should be same color as flash timeline */
+.splBarGraphBar {
+background-color:#EA3C2E;
+}
+
+/* resize handle */
+.ui-resizable-s {
+background-color:#bedafe !important;
+}
+
+div.FlashTimeline a.splIconicLink {
+color: #FFF;
+}
+
+div.FlashTimeline a.splIconicLinkDisabled {
+color: #BBB;
+}
+
+
+
+/**********************************
+Background colors 
+***********************************/
+
+
+/* secondary background - sidebar, other panels */
+.splBackground-secondary, .sidebarExpanded, .popupFooter {
+    background-color:#edede7;
+}
+
+/* MultiFieldViewer + SuggestedFieldViewer */
+.MultiFieldViewer .fieldTabs .mouseoverHighlight,
+.MultiFieldViewer .fieldTabs .selected,
+.SuggestedFieldViewer .fieldTabs .mouseoverHighlight,
+.SuggestedFieldViewer .fieldTabs .selected {
+    background-color:#EA3C2E;
+}
+
+/**********************************
+Borders 
+***********************************/
+
+/* default border helper classes */
+.splBorder, .splBorder-n, .splBorder-s, .splBorder-e, .splBorder-w, .splBorder-nsew {
+    border-color: #EA3C2E;
+}
+
+/* layout panel borders */
+div.mainSearchControls, div.graphArea, div.resultsArea, div.pageControls, div.splSearchControls-inline,
+div.sidebar, div.withSidebar div.sidebarCollapsed,
+div.reportBuilder .equalHeightRow, div.reportFirstPanel,
+.popupContainer {
+    border-color: #777;   
+}
+
+/* helper class borders */
+.splButtonWrapper {
+    border-color: #EA3C2E;
+}
+
+/* form element borders */
+input, textarea, select {
+    border-color: #EA3C2E;  
+}
+
+/* individual element borders */
+.reportBuilder .layoutCell,
+.ui-datepicker-inline, 
+.reportBuilder .GenericHeader h3,
+.reportBuilder .layoutCell,
+.dashboardCell {
+    border-color: #EA3C2E;   
+}
+
+
+.fieldValuePopup table th, .fieldValuePopup table td,
+.SearchBar .assistantContainer {
+border-color:#EA3C2E;
+}
+
+/* pipe */
+.splDivider {
+    border-color: #777;
+}
+
+/**********************************
+Headers
+***********************************/
+
+.ResultsHeader .splHeader-primary, .FlashTimeline .splHeader-primary {
+background: #EA3C2E url(bg_nav_default.png) repeat-x;
+}
+
+.splHeader-popup, .splHeader-secondary {
+background: #263442 url(bg_nav_hover.png) repeat-x;
+}
+
+/**********************************
+Buttons and icons
+***********************************/
+
+.sidebar .splIcon, .FlashTimeline .splIcon {
+background-color:#EA3C2E;
+}
+
+.ButtonSwitcher ul li.selected, .ButtonSwitcher ul li.selected:hover {
+background-color:#EA3C2E;
+border:1px solid #EA3C2E;
+}
+
+.splButton-primary {
+background-color:#EA3C2E;
+}
+
+.splButton-primary:hover {
+background-color:#263442;
+}
+
+.splButton-secondary {
+background-color:#263442;
+}
+
+.splButton-secondary:hover {
+background-color:#EA3C2E;
+}
+
+.totalButton {
+	border:1px solid grey;
+	padding:20px;
+	font-family:Arial,Helvetica,sans-serif;
+	font-size:18px;
+	background-color: #5CAEDD;
+	color: white;
+}
+.errorButton {
+	border:1px solid grey;
+	padding:20px;
+	font-family:Arial,Helvetica,sans-serif;
+	font-size:18px;
+	background-color: #D85127;
+	color: white;
+}
+.warningButton {
+	border:1px solid grey;
+	padding:20px;
+	font-family:Arial,Helvetica,sans-serif;
+	font-size:18px;
+	background-color: #E2C438;
+	color: white;
+}

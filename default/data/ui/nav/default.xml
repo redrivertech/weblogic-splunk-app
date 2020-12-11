@@ -1,0 +1,9 @@
+<nav>
+ 	<view name="topology" default="true"/>
+    <view name="machines"/>
+    <view name="server_overview"/>
+ 	<view name="applications"/>
+ 	<view name="server_drilldown_jmsq"/>
+	<view name="flashtimeline"/>
+ 	<view name="About"/>
+</nav>

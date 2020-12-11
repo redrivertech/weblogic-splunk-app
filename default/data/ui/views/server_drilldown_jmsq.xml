@@ -1,0 +1,142 @@
+<form>
+  <label>JMS Queue Status </label>
+  <fieldset autoRun="true" submitButton="true">
+    <input type="dropdown" token="domain" searchWhenChanged="false">
+      <label>Domain:</label>
+      <default>*</default>
+      <choice value="*">All</choice>
+      <populatingSearch fieldForValue="domain" fieldForLabel="domain" earliest="-1h" latest="now">| inputlookup domains.csv</populatingSearch>
+    </input>
+    <input type="dropdown" token="server" searchWhenChanged="false">
+      <label>Server:</label>
+      <default>*</default>
+      <choice value="*">All</choice>
+      <populatingSearch fieldForValue="server" fieldForLabel="server" earliest="-1h" latest="now">
+        <![CDATA[index=wls sourcetype=wls_jmx domain=$domain$ server=*| dedup server| sort server]]>
+      </populatingSearch>
+    </input>
+    <input type="time" searchWhenChanged="false">
+      <default>Last 60 minutes</default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <single>
+        <title>Destination Count</title>
+        <search>
+          <query>`index_wls` `sourcetype_wls_jmx` domain=$domain$ server=$server$ jms_destination_count=* earliest=-2h | stats first(jms_destination_count) AS jms_dest_count</query>
+          <earliest>-2h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="afterLabel">Events</option>
+        <option name="linkView">search</option>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Current Connection Count</title>
+        <search>
+          <query>`index_wls` `sourcetype_wls_jmx` domain=$domain$ server=$server$ earliest=-15m jms_current_connection_count=* | stats first(jms_current_connection_count) AS connection_count</query>
+          <earliest>-15m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="afterLabel">Events</option>
+        <option name="linkView">search</option>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <chart>
+      <title>Total Connections over Time</title>
+      <search>
+        <query>`index_wls` `sourcetype_wls_jmx` domain=$domain$ server=$server$ jms_total_connections=* | timechart max(jms_total_connections) AS "Total Connections"</query>
+      </search>
+      <option name="charting.axisTitleX.visibility">visible</option>
+      <option name="charting.axisTitleY.visibility">visible</option>
+      <option name="charting.axisX.scale">linear</option>
+      <option name="charting.axisY.scale">linear</option>
+      <option name="charting.chart">line</option>
+      <option name="charting.chart.nullValueMode">gaps</option>
+      <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+      <option name="charting.chart.stackMode">default</option>
+      <option name="charting.chart.style">shiny</option>
+      <option name="charting.drilldown">all</option>
+      <option name="charting.layout.splitSeries">0</option>
+      <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+      <option name="charting.legend.placement">right</option>
+      <option name="charting.chart.showPercent">true</option>
+      <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+      <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+      <option name="charting.axisTitleY2.visibility">visible</option>
+      <option name="charting.axisY2.enabled">false</option>
+      <option name="charting.axisY2.scale">inherit</option>
+      <option name="charting.chart.bubbleMaximumSize">50</option>
+      <option name="charting.chart.bubbleMinimumSize">10</option>
+      <option name="charting.chart.bubbleSizeBy">area</option>
+    </chart>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Messages Received Over Time</title>
+        <search>
+          <query>`index_wls` `sourcetype_wls_jmx` domain=$domain$ server=$server$ jms_messages_received_count=* | timechart max(jms_messages_received_count) AS "Messages Received"</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.chart.showPercent">true</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisY2.enabled">false</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Pending Messages over Time</title>
+        <search>
+          <query>`index_wls` `sourcetype_wls_jmx` domain=$domain$ server=$server$ jms_pending_messages_count=* | timechart max(jms_pending_messages_count) AS "Pending Messages"</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.chart.showPercent">true</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisY2.enabled">false</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+      </chart>
+    </panel>
+  </row>
+</form>

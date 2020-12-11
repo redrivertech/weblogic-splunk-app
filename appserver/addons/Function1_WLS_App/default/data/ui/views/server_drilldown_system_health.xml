@@ -1,0 +1,161 @@
+<view autoCancelInterval="90" isVisible="true" objectMode="SimpleDashboard" onunloadCancelJobs="true" refresh="3600" template="dashboard.html">
+  <label>WebLogic Server Drill Down</label>
+  <module name="SideviewUtils" layoutPanel="appHeader" />  
+  <module name="AccountBar" layoutPanel="appHeader"/>
+  <module name="AppBar" layoutPanel="navigationHeader"/>
+  <module name="Message" layoutPanel="messaging">
+    <param name="filter">*</param>
+    <param name="clearOnJobDispatch">False</param>
+    <param name="maxSize">1</param>
+  </module>
+  <module name="DashboardTitleBar" layoutPanel="viewHeader"/>
+  <module name="Message" layoutPanel="navigationHeader">
+    <param name="filter">splunk.search.job</param>
+    <param name="clearOnJobDispatch">True</param>
+    <param name="maxSize">1</param>
+    <param name="level">warn</param>
+  </module>
+  
+  <module name="URLLoader" layoutPanel="panel_row1_col1" autoRun="True">
+
+  <module name="TimeRangePicker" layoutPanel="viewHeader">
+  	<param name="default">Last 60 minutes</param>
+  	<param name="label">Select Time Range</param>
+  
+	   <module name="Search" layoutPanel="panel_row1_col1" group="% JVM Heap Used" autoRun="True">
+		<param name="search">`index_wls` `sourcetype_wls_admin` free_mem=* server=$server$
+							| eval used_mem = (100 - free_mem) 
+							| timechart avg(used_mem) AS "avg_used_mem"
+		</param>
+		<param name="groupLabel">% Server Memory Free</param>
+		<module name="ViewstateAdapter">
+		  <param name="suppressionList">
+			<item>count</item>
+			<item>charting.axisTitleY.text</item>
+			<item>charting.chart</item>
+			<item>charting.secondaryAxisTitle.text</item>
+			<item>charting.primaryAxisTitle.text</item>
+			<item>displayRowNumbers</item>
+			<item>charting.chart.nullValueMode</item>
+			<item>charting.axisTitleX.text</item>
+		  </param>
+		  <module name="HiddenFieldPicker">
+			<param name="strictMode">True</param>
+			<module name="JobProgressIndicator">
+			  <module name="EnablePreview">
+				<param name="enable">True</param>
+				<param name="display">False</param>
+				<module name="HiddenChartFormatter">
+				  <param name="charting.axisTitleY.text">% Used</param>
+				  <param name="charting.chart">area</param>
+				  <param name="charting.chart.nullValueMode">connect</param>
+				  <param name="charting.axisTitleX.text">Time</param>
+				  <module name="JSChart">
+					<param name="width">100%</param>
+					<module name="Gimp"/>
+					<module name="ConvertToDrilldownSearch">
+					  <module name="ViewRedirector">
+						<param name="viewTarget">flashtimeline</param>
+					  </module>
+					</module>
+				  </module>
+				  <module name="ViewRedirectorLink">
+					<param name="viewTarget">flashtimeline</param>
+				  </module>
+				</module>
+			  </module>
+			</module>
+		  </module>
+		</module>
+	  </module> <!--Hidden Search - Server Memory Free-->
+	  
+  <module name="Search" layoutPanel="panel_row2_col1" group="Min, Max, and Average CPU Load" autoRun="True">
+    <param name="search">tag=cpu host=$machine$ | multikv fields pctIdle | eval cpu_nix = 100-pctIdle 
+        | eval cpu_win = round(Value,2) | eval cpu_used = (if(sourcetype="cpu",cpu_nix,cpu_win))
+        | timechart eval(round(avg(cpu_used),2)) AS avg_cpu eval(round(min(cpu_used),2)) AS min_cpu eval(round(max(cpu_used),2)) AS max_cpu
+	</param>
+    <param name="groupLabel">Min, Max, and Average CPU Load</param>
+    <module name="ViewstateAdapter">
+      <param name="suppressionList">
+        <item>count</item>
+        <item>charting.axisTitleY.text</item>
+        <item>charting.chart</item>
+        <item>charting.secondaryAxisTitle.text</item>
+        <item>displayRowNumbers</item>
+        <item>charting.chart.nullValueMode</item>
+      </param>
+      <module name="HiddenFieldPicker">
+        <param name="strictMode">True</param>
+        <module name="JobProgressIndicator">
+          <module name="EnablePreview">
+            <param name="enable">True</param>
+            <param name="display">False</param>
+            <module name="HiddenChartFormatter">
+              <param name="charting.axisTitleY.text">% CPU Load</param>
+              <param name="charting.axisTitleX.text">Time</param>
+              <param name="charting.chart">line</param>
+              <param name="charting.chart.nullValueMode">connect</param>
+              <module name="JSChart">
+                <param name="width">100%</param>
+                <module name="Gimp"/>
+                <module name="ConvertToDrilldownSearch">
+                  <module name="ViewRedirector">
+                    <param name="viewTarget">flashtimeline</param>
+                  </module>
+                </module>
+              </module>
+              <module name="ViewRedirectorLink">
+                <param name="viewTarget">flashtimeline</param>
+              </module>
+            </module>
+          </module>
+        </module>
+      </module>
+    </module>
+  </module>
+  
+  <module name="HiddenSearch" layoutPanel="panel_row2_col2" group="Avg CPU Load by Process " autoRun="True">
+    <param name="search">`index_wls` source=WMI:localprocesses server=$server$ Name!=Total | rex field=Name "(?&lt;Name&gt;[^#]+)#\d+$" | search Name=beasvc OR Name=java OR Name=jqs | eval CPULoad = PercentProcessorTime | timechart avg(CPULoad) by Name</param>
+    <param name="groupLabel">Avg CPU Load by Process </param>
+    <module name="ViewstateAdapter">
+      <param name="suppressionList">
+        <item>count</item>
+        <item>charting.axisTitleY.text</item>
+        <item>charting.chart</item>
+        <item>charting.secondaryAxisTitle.text</item>
+        <item>displayRowNumbers</item>
+        <item>charting.chart.nullValueMode</item>
+      </param>
+      <module name="HiddenFieldPicker">
+        <param name="strictMode">True</param>
+        <module name="JobProgressIndicator">
+          <module name="EnablePreview">
+            <param name="enable">True</param>
+            <param name="display">False</param>
+            <module name="HiddenChartFormatter">
+              <param name="charting.axisTitleY.text">% CPU Load</param>
+              <param name="charting.chart">line</param>
+              <param name="charting.chart.nullValueMode">connect</param>
+              <module name="JSChart">
+                <param name="width">100%</param>
+                <module name="Gimp"/>
+                <module name="ConvertToDrilldownSearch">
+                  <module name="ViewRedirector">
+                    <param name="viewTarget">flashtimeline</param>
+                  </module>
+                </module>
+              </module>
+              <module name="ViewRedirectorLink">
+                <param name="viewTarget">flashtimeline</param>
+              </module>
+            </module>
+          </module>
+        </module>
+      </module>
+    </module>
+  </module>
+  </module> <!--Time Range Picker-->
+
+  </module> <!--URRLoader Module-->
+  
+</view>
