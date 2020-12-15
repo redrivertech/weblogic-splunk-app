@@ -42,4 +42,4 @@ jobs:
           sudo pip3 install wheel
           sudo pip3 install --ignore-installed PyYAML
           sudo pip3 install splunk-appinspect.tar.gz
-          splunk-appinsppect inspect $GITHUB_WORKSPACE --mode precert
+          splunk-appinspect inspect $GITHUB_WORKSPACE --mode precert
