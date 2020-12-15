@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: Splunk AppInspect
 
 # Controls when the action will run. 
 on:
@@ -29,5 +29,5 @@ jobs:
       - name: splunk-appinspect
         run: |
           wget --output-document splunk-appinspect.tar.gz http://dev.splunk.com/goto/appinspectdownload
-          pip install splunk-appinspect.tar.gz
-          splunk-appinsppect inspect $GITHUB_WORKSPACE
+          pip3 install splunk-appinspect.tar.gz
+          splunk-appinsppect inspect $GITHUB_WORKSPACE --mode precert
