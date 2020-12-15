@@ -28,6 +28,6 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: splunk-appinspect
         run: |
-          wget --output-document splunk-appinspect.tar.gz http://dev.splunk.com/goto/appinspectdownload
+          wget --output-document splunk-appinspect.tar.gz https://download.splunk.com/misc/appinspect/splunk-appinspect-latest.tar.gz
           pip3 install splunk-appinspect.tar.gz
           splunk-appinsppect inspect $GITHUB_WORKSPACE --mode precert
