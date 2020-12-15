@@ -29,5 +29,9 @@ jobs:
       - name: splunk-appinspect
         run: |
           wget --output-document splunk-appinspect.tar.gz https://download.splunk.com/misc/appinspect/splunk-appinspect-latest.tar.gz
+          pip3 install --upgrade pip
+          pip3 install --upgrade pip setuptools
+          apt-get install -y libxml2-dev libxslt-dev lib32z1-dev python-lxml
+          apk add --no-cache --update libmagic
           pip3 install splunk-appinspect.tar.gz
           splunk-appinsppect inspect $GITHUB_WORKSPACE --mode precert
