@@ -25,14 +25,19 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
-      - name: splunk-appinspect
+      - name: install deps for appinspect
         run: |
           sudo apt-get update
           sudo apt install -y libxml2-dev libxslt-dev lib32z1-dev python-lxml
+
+      - name: update pip and pip setup
+        run: |
           sudo pip3 install --upgrade pip
           sudo pip3 install --upgrade pip setuptools
-          apk add --no-cache --update libmagic
+
+      # Downloads, installs, and runs appinspect
+      - name: splunk-appinspect
+        run: |
           wget --output-document splunk-appinspect.tar.gz https://download.splunk.com/misc/appinspect/splunk-appinspect-latest.tar.gz
           sudo pip3 install splunk-appinspect.tar.gz
           splunk-appinsppect inspect $GITHUB_WORKSPACE --mode precert
