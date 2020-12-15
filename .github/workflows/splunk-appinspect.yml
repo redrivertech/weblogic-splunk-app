@@ -39,5 +39,6 @@ jobs:
       - name: splunk-appinspect
         run: |
           wget --output-document splunk-appinspect.tar.gz https://download.splunk.com/misc/appinspect/splunk-appinspect-latest.tar.gz
+          sudo pip3 install wheel
           sudo pip3 install splunk-appinspect.tar.gz
           splunk-appinsppect inspect $GITHUB_WORKSPACE --mode precert
