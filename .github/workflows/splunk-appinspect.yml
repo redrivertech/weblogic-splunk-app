@@ -28,10 +28,11 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: splunk-appinspect
         run: |
-          wget --output-document splunk-appinspect.tar.gz https://download.splunk.com/misc/appinspect/splunk-appinspect-latest.tar.gz
-          pip3 install --upgrade pip
-          pip3 install --upgrade pip setuptools
-          apt-get install -y libxml2-dev libxslt-dev lib32z1-dev python-lxml
+          sudo apt-get update
+          sudo apt install -y libxml2-dev libxslt-dev lib32z1-dev python-lxml
+          sudo pip3 install --upgrade pip
+          sudo pip3 install --upgrade pip setuptools
           apk add --no-cache --update libmagic
-          pip3 install splunk-appinspect.tar.gz
+          wget --output-document splunk-appinspect.tar.gz https://download.splunk.com/misc/appinspect/splunk-appinspect-latest.tar.gz
+          sudo pip3 install splunk-appinspect.tar.gz
           splunk-appinsppect inspect $GITHUB_WORKSPACE --mode precert
