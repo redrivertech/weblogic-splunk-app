@@ -15,8 +15,7 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
+  inspect:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -27,19 +26,22 @@ jobs:
 
       - name: install deps for appinspect
         run: |
-          sudo apt-get update
+          sudo apt update
           sudo apt install -y libxml2-dev libxslt-dev lib32z1-dev python-lxml
-
-      - name: update pip and pip setup
-        run: |
           sudo pip3 install --upgrade pip
           sudo pip3 install --upgrade pip setuptools
+          sudo pip3 install wheel
+          sudo pip3 install --ignore-installed PyYAML
+
+      - name: remove offending files
+        run: |
+          rm -Rdf $GITHUB_WORKSPACE/.git
+          rm -Rdf $GITHUB_WORKSPACE/.github
+          rm $GITHUB_WORKSPACE/.gitignore
 
       # Downloads, installs, and runs appinspect
       - name: splunk-appinspect
         run: |
           wget --output-document splunk-appinspect.tar.gz https://download.splunk.com/misc/appinspect/splunk-appinspect-latest.tar.gz
-          sudo pip3 install wheel
-          sudo pip3 install --ignore-installed PyYAML
           sudo pip3 install splunk-appinspect.tar.gz
-          splunk-appinspect inspect $GITHUB_WORKSPACE --mode precert
+          splunk-appinspect inspect $GITHUB_WORKSPACE
