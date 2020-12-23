@@ -5,10 +5,10 @@
 [Deploy the Oracle WebLogic App for Splunk](#deploy-the-oracle-weblogic-app-for-splunk)  
 [Install the Technology Add-ons and the App](#install-the-technology-add-ons-and-the-app)  
 [Configure the Admin Server TAs](#configure-the-adminserver-tas)  
-[For \*Nix Environments](#for-\*nix-environments)  
+[For \*Nix Environments](#for-nix-environments)  
 [For Windows Environments](#for-windows-environments)  
 [TA Inventory and Configuration Options](#ta-inventory-and-configuration-options)  
-[Troubleshooting, Support, & Feature Enhancements](#troubleshooting,-support,-&-feature-enhancements)  
+[Troubleshooting, Support, & Feature Enhancements](#troubleshootingsupport--feature-enhancements)  
 
 ## Introduction
 All code was downloaded from the splunkbase archive. Development of the code was started and maintainaned by Function1 until 2015.
