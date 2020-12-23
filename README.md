@@ -1,4 +1,4 @@
-# Installation Oracle WebLogic App For Splunk
+# Installation of Oracle WebLogic App For Splunk
 [Introduction](#introduction)  
 [Technology Add‐on Requirements](#technology-add‐on-requirements)  
 [Before Getting Started](#before-getting-started)  
