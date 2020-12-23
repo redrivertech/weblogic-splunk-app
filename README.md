@@ -1,6 +1,6 @@
 # Installation of Oracle WebLogic App For Splunk
 [Introduction](#introduction)  
-[Technology Add‐on Requirements](#technology-add‐on-requirements)  
+[Technology Add‐on Requirements](#technology-addon-requirements)  
 [Before Getting Started](#before-getting-started)  
 [Deploy the Oracle WebLogic App for Splunk](#deploy-the-oracle-weblogic-app-for-splunk)  
 [Install the Technology Add-ons and the App](#install-the-technology-add-ons-and-the-app)  
