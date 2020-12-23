@@ -62,37 +62,37 @@ Configure the Function1_WLS_AdminsServer* TAs to allow the scripts within the TA
 
    * Under '*Nix JMX Input Scripts', replace '/your/app/file path' with the full path to the TA, remember to account for changes you may have made to the name of the TA. Do this for all three scripted inputs: "EVERY MINUTE," "EVERY HOUR," and "EVERY DAY."
    * Replace '/your/weblogic/home' with the full file path to your WebLogic home. Repeat for all three scripted inputs. When complete, your scripted input stanzas should look like the example below:  
+   
+      ```
+      # RUN PY TO WLST TO MBEAN AND WRITE JMX LOG
+      ### *Nix JMX Input Scripts
+      # EVERY MINUTE
+      [script://.bin/runWlstScriptsMinute.sh /opt/splunkforwarder/etc/apps/function1_weblogicserver_ta_nix /opt/weblogic]
+      disabled = false
+      index = wls
+      sourcetype = wls_trash
+      interval = 300
 
-   ```
-   # RUN PY TO WLST TO MBEAN AND WRITE JMX LOG
-   ### *Nix JMX Input Scripts
-   # EVERY MINUTE
-   [script://.bin/runWlstScriptsMinute.sh /opt/splunkforwarder/etc/apps/function1_weblogicserver_ta_nix /opt/weblogic]
-   disabled = false
-   index = wls
-   sourcetype = wls_trash
-   interval = 300
+      # EVERY HOUR
+      [script://.bin/runWlstScriptsHourly.sh /opt/splunkforwarder/etc/apps/function1_weblogicserver_ta_nix /opt/weblogic]
+      disabled = false
+      index = wls
+      sourcetype = wls_trash
+      interval = 3600
 
-   # EVERY HOUR
-   [script://.bin/runWlstScriptsHourly.sh /opt/splunkforwarder/etc/apps/function1_weblogicserver_ta_nix /opt/weblogic]
-   disabled = false
-   index = wls
-   sourcetype = wls_trash
-   interval = 3600
+      # EVERY DAY
+      [script://.bin/runWlstScriptsDaily.sh /opt/splunkforwarder/etc/apps/function1_weblogicserver_ta_nix /opt/weblogic]
+      disabled = false
+      index = wls
+      sourcetype = wls_trash
+      interval = 86400
 
-   # EVERY DAY
-   [script://.bin/runWlstScriptsDaily.sh /opt/splunkforwarder/etc/apps/function1_weblogicserver_ta_nix /opt/weblogic]
-   disabled = false
-   index = wls
-   sourcetype = wls_trash
-   interval = 86400
-
-   # FORWARD JMX LOG
-   [monitor://$SPLUNK_HOME/var/log/wls_jmx*]
-   disabled = false
-   index = wls
-   sourcetype = wls_jmx
-   ```
+      # FORWARD JMX LOG
+      [monitor://$SPLUNK_HOME/var/log/wls_jmx*]
+      disabled = false
+      index = wls
+      sourcetype = wls_jmx
+      ```
 
    **Important Note:** When configuring your local/inputs.conf file, be sure to remember to replace '/your/app/filepath' and '/your/WebLogic home' with your actual file paths in all scripted input stanzas.  
 
@@ -102,16 +102,16 @@ Configure the Function1_WLS_AdminsServer* TAs to allow the scripts within the TA
    * "ADMIN_SERVER" should be set to the name of your WLS Admin Server as configured in the WLS config.xml file for this WLS domain. 
    * "ADMIN_PORT" should be set to the port the WLS Admin Server is listening on as configured in the WLS config.xml file for this WLS domain. Your configuration should looks similar to below
 
-   ```bash
-   ## Set your total number of domains here
-   export DOMAIN_COUNT=1
+      ```bash
+      ## Set your total number of domains here
+      export DOMAIN_COUNT=1
 
-   ## For each domain on this server, add the domain path, adminServerName and admin port
-   ## Please make sure that the entries are in the respective order
-   export DOMAIN_PATH_1=/opt/weblogic/user_projects/domains/wcsDomain/
-   export ADMIN_SERVER_1=AdminServer
-   export ADMIN_PORT_1=7001
-   ```
+      ## For each domain on this server, add the domain path, adminServerName and admin port
+      ## Please make sure that the entries are in the respective order
+      export DOMAIN_PATH_1=/opt/weblogic/user_projects/domains/wcsDomain/
+      export ADMIN_SERVER_1=AdminServer
+      export ADMIN_PORT_1=7001
+      ```
 
 4. In the "wlsCollectDataDaily.py", "wlsCollectDataHourly.py", and "wlsCollectDataMinute.py" files make sure "admin_url" is set to the "listen-address" as configured in the WLS config.xml file for this WLS domain. The following is an example of the AdminServer section in a WLS config.xml file
    ```xml
@@ -145,14 +145,14 @@ Configure the Function1_WLS_AdminsServer* TAs to allow the scripts within the TA
    **Important Note:** When configuring your local\inputs.conf file, be sure to remember to replace 'C:\your\app\filepath' and 'C:\your\weblogic\home' with your actual file paths in all scripted input stanzas.
 
 4. Once you have enabled/disabled your desired features, go to \<yourTA>\bin. Using an editor, open setWlstEnv.cmd. Here you will set your WebLogic domain, AdminServer name, and admin port. Your DOMAIN_COUNT should reflect the number of domains you declare in this file. Example:
-```bat
-@rem ## For each domain on this server, add the domain path, adminServerName and admin port
-@rem ## Please make sure that the entries are in the respective order
+   ```bat
+   @rem ## For each domain on this server, add the domain path, adminServerName and admin port
+   @rem ## Please make sure that the entries are in the respective order
 
-set DOMAIN_PATH_1=C:\oracle\Middleware\wlserver_10.3\samples\domains\wcsDomain
-set ADMIN_SERVER_1=AdminServer
-set ADMIN_PORT_1=7001
-```
+   set DOMAIN_PATH_1=C:\oracle\Middleware\wlserver_10.3\samples\domains\wcsDomain
+   set ADMIN_SERVER_1=AdminServer
+   set ADMIN_PORT_1=7001
+   ```
 
 5. Once you have completed these configurations, restart your forwarder to allow the changes to take effect. Verify data is generating by checking the log files under $SPLUNK_HOME\var\log\.
 ---
