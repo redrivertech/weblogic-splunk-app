@@ -32,29 +32,29 @@ There are only a couple of steps you will need to take to successfully install t
 2. Download and install Splunk Universal Forwarders (UF) to each WebLogic component. Keep in mind that you  only need to install one UF per server, even if the server houses multiple WebLogic roles.
 
 3. Deploy the TAs to your WLS environment:
-   * The TAs are located in Function1_WebLogicServer/appserver/addons.
+   * The TAs are located in WebLogicServer/appserver/addons.
    * If you are using the Splunk deployment server, place the TAs in $SPLUNK_HOME/etc/deployment-apps on the deployment server. You must also configure serverclass.conf on the deployment server. For more information about distributed environments and how to manage and configure them look [here](http://docs.splunk.com/Documentation/Splunk/latest/Deploy/Distributedoverview).
    * Review the table below and deploy, or install, the TAs to their corresponding role(s):  
       Server Role | OS | Deploy these TA(s)
       ---|---|---
-      WLS AdminServer | Windows | Function1_WLS_AdminServer_Win_TA
-      || *Nix | Function1_WLS_AdminServer_Nix_TA
-      WLS ManagedServer and/or WLS NodeManager | Windows |Function1_WLS_ManagedServer_Win_TA
-      || *Nix | Function1_WLS_ManagedServer_Nix_TA
+      WLS AdminServer | Windows | WLS_AdminServer_Win_TA
+      || *Nix | WLS_AdminServer_Nix_TA
+      WLS ManagedServer and/or WLS NodeManager | Windows |WLS_ManagedServer_Win_TA
+      || *Nix | WLS_ManagedServer_Nix_TA
    * We highly recommend using a deployment server to distribute the TAs, but if you are not, then manually install them on each UF in $SPLUNK_HOME/etc/apps.
    * Once the UFs have their appropriate TAs, you must configure your core Splunk instance. Review the table below:  
       Core Splunk Instance | Install on Indexer | Install on Search Head
       ---|---|---
-      Single server: Search Head and Indexer combination | Function1_WLS_Core_TA<br />Function1_WebLogicServer | N/A
-      Distributed environment: Multiple Search heads and/or multiple Indexers | Function1_WLS_Core_TA | Function1_WLS_Core_TA<br />Function1_WebLogicServer
+      Single server: Search Head and Indexer combination | WLS_Core_TA<br />WebLogicServer | N/A
+      Distributed environment: Multiple Search heads and/or multiple Indexers | WLS_Core_TA | WLS_Core_TA<br />WebLogicServer
    * Now your core Splunk instance will be able to receive, index, parse, and display the data from your WLS environment.
 
 ## Configure the AdminServer TAs
 
-Configure the Function1_WLS_AdminsServer* TAs to allow the scripts within the TA to run successfully. 
+Configure the WLS_AdminsServer* TAs to allow the scripts within the TA to run successfully. 
 
 ### For \*Nix Environments ###
-1. Within the Function1_AdminServer_Nix_TA, copy the inputs.conf file in the ../default directory to the ../local directory.  
+1. Within the AdminServer_Nix_TA, copy the inputs.conf file in the ../default directory to the ../local directory.  
 
    **Note:** If your WLS hosts have different installation paths for WebLogic Server, then you will need to create a TA for each different WLS configuration. You can rename the TA accordingly.
 
@@ -67,21 +67,21 @@ Configure the Function1_WLS_AdminsServer* TAs to allow the scripts within the TA
       # RUN PY TO WLST TO MBEAN AND WRITE JMX LOG
       ### *Nix JMX Input Scripts
       # EVERY MINUTE
-      [script://.bin/runWlstScriptsMinute.sh /opt/splunkforwarder/etc/apps/function1_weblogicserver_ta_nix /opt/weblogic]
+      [script://.bin/runWlstScriptsMinute.sh /opt/splunkforwarder/etc/apps/weblogicserver_ta_nix /opt/weblogic]
       disabled = false
       index = wls
       sourcetype = wls_trash
       interval = 300
 
       # EVERY HOUR
-      [script://.bin/runWlstScriptsHourly.sh /opt/splunkforwarder/etc/apps/function1_weblogicserver_ta_nix /opt/weblogic]
+      [script://.bin/runWlstScriptsHourly.sh /opt/splunkforwarder/etc/apps/weblogicserver_ta_nix /opt/weblogic]
       disabled = false
       index = wls
       sourcetype = wls_trash
       interval = 3600
 
       # EVERY DAY
-      [script://.bin/runWlstScriptsDaily.sh /opt/splunkforwarder/etc/apps/function1_weblogicserver_ta_nix /opt/weblogic]
+      [script://.bin/runWlstScriptsDaily.sh /opt/splunkforwarder/etc/apps/weblogicserver_ta_nix /opt/weblogic]
       disabled = false
       index = wls
       sourcetype = wls_trash
@@ -133,10 +133,18 @@ Configure the Function1_WLS_AdminsServer* TAs to allow the scripts within the TA
 
    **Note:** If no listen-address is specified for the AdminServer in the WLS config.xml file, then "admin_url" can be set to "localhost"
 
-5. Once you have completed these configurations, deploy the TA to the forwarder residing on the WLS Admin Server by either using the Splunk deployment server or copying the TA to the forwarder manually. If you manually copy the TA to the forwarder, be sure to restart the forwarder once your updates are complete.  
+5. In the "wlsCollectData*.py" files, "connect" can have encrypted  credentials as following but myuserconfigfile.secure and myuserkeyfile.secure need to be created first.
+   In order to create myuserconfigfile.secure and  myuserkeyfile.secure, execute "storeUserConfig('/someDirectory/MyUserConfigFile','/someDirectory/MyUserKeyFile')" after invoking WLST and connecting to admin console in weblogic environment.
+
+   
+   ```   connect(userConfigFile='/somedirectory/myuserconfigfile.secure', userKeyFile='/somedirectory/myuserkeyfile.secure',url=admin_url,adminServerName=adminsvr)
+   ```
+   
+
+6. Once you have completed these configurations, deploy the TA to the forwarder residing on the WLS Admin Server by either using the Splunk deployment server or copying the TA to the forwarder manually. If you manually copy the TA to the forwarder, be sure to restart the forwarder once your updates are complete.  
 
 ### For Windows Environments ###
-1. Within the Function1_WLS_AdminServer_Win_TA, use a text editor to open the file \default\inputs.conf. Under 'Windows JMX Input Scripts', replace 'C:\your\app\filepath' with the full path to your app (including the name of your app). Do this for all three scripted inputs.
+1. Within the WLS_AdminServer_Win_TA, use a text editor to open the file \default\inputs.conf. Under 'Windows JMX Input Scripts', replace 'C:\your\app\filepath' with the full path to your app (including the name of your app). Do this for all three scripted inputs.
 
 2. Replace 'C:\your\weblogic\home' with the full file path to your WebLogic home. Repeat for all three scripted inputs.
 
@@ -154,7 +162,15 @@ Configure the Function1_WLS_AdminsServer* TAs to allow the scripts within the TA
    set ADMIN_PORT_1=7001
    ```
 
-5. Once you have completed these configurations, restart your forwarder to allow the changes to take effect. Verify data is generating by checking the log files under $SPLUNK_HOME\var\log\.
+5. In the "wlsCollectData*.py" files, "connect" can have encrypted  credentials as following but myuserconfigfile.secure and myuserkeyfile.secure need to be created first.
+   In order to create myuserconfigfile.secure and  myuserkeyfile.secure, execute "storeUserConfig('C:\someDirectory\MyUserConfigFile','C:\someDirectory\MyUserKeyFile')" after invoking WLST and connecting to admin console in weblogic environment.
+
+   
+   ```   connect(userConfigFile='C:\someDirectory\MyUserConfigFile','C:\someDirectory\MyUserKeyFile',url=admin_url,adminServerName=adminsvr)
+   ```
+
+
+6. Once you have completed these configurations, restart your forwarder to allow the changes to take effect. Verify data is generating by checking the log files under $SPLUNK_HOME\var\log\.
 ---
 **Troubleshooting the AdminServer Technology Add-on**  
 
@@ -172,15 +188,25 @@ Here are some steps to help troubleshoot the installation of the technology add-
 
    **Note:** If the files do not exist then there is an issue with the scripts being run. If those files exist and have data in them, then there is an issue with the TA picking up the files and forwarding them.
 
-2. Navigate to the AdminServer TA's bin directory in $SPLUNK_HOME/etc/apps/Function1_WLS_AdminServer_\<Nix or Win>_TA/bin on the forwarder. And run any of the "runWlstScripts*.sh" (Unix/Linux environment) or "runWlstScripts*.cmd" (Windows environment) files from the command-line. Examine the output to determine if any errors occurred.  
+2. Navigate to the AdminServer TA's bin directory in $SPLUNK_HOME/etc/apps/WLS_AdminServer_\<Nix or Win>_TA/bin on the forwarder. And run any of the "runWlstScripts*.sh" (Unix/Linux environment) or "runWlstScripts*.cmd" (Windows environment) files from the command-line. Examine the output to determine if any errors occurred.  
 
    **Note:** The WLST script which is invoked by the shell script will try to output a log of the script execution to a directory under the WLS installation path, however, unless the account Splunk is running under has write access to this directory it will throw an error, so any errors related to this can be considered "normal" and ignored. Resolve any other errors that the script generates.
 
-3. Verify the TA's inputs.conf file is correct. Navigate to the $SPLUNK_HOME/etc/apps/Function1_WLS_AdminServer_\<Nix or Win>\_TA/local directory. In the inputs.conf file, ensure that the [monitor://$SPLUNK_HOME/var/log/wls_jmx_*] stanza is enabled.  
+3. Verify the TA's inputs.conf file is correct. Navigate to the $SPLUNK_HOME/etc/apps/WLS_AdminServer_\<Nix or Win>\_TA/local directory. In the inputs.conf file, ensure that the [monitor://$SPLUNK_HOME/var/log/wls_jmx_*] stanza is enabled.  
 
    **Note:** If it is not enabled, then enable it on the deployment server and re-deploy the TA to the forwarder.
 
-4. Verify the forwarders output configuration. Navigate to 
+4. In inputs.conf of Windows TA, for the section where it runs python to WLST for EVERY MINUTE, EVERY HOUR and EVERY DAY, if full path to the TA is intended to be mentioned versus $SPLUNK_HOME, make sure to use "C:PROGRA~1\" instead of "C:Program Files" as the script does not like space. 
+```
+#EVERY MINUTE
+[script://.\bin\runWlstScriptsMinute.cmd C:PROGRA~1\SplunkUniversalForwarder\etc\apps\WLS_Admin_Win_TA  D:\Oracle\Middleware]
+index = weblogic
+interval = 60
+sourcetype = wls_trash
+disabled = false
+```
+
+5. Verify the forwarders output configuration. Navigate to 
 $SPLUNK_HOME/etc/app/<name_of_outputs_package>/local directory. Verify the indexer's settings are correct in the "outputs.conf" file.  
 
    **Note:** If the "outputs.conf" file is incorrect or the package is missing, then correct on the deployment server and re-deploy. If the outputs package appears to be correct and the forwarder is sending other data to Splunk, then the issue should be escalated.  
