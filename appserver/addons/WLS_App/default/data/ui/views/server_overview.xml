@@ -1,0 +1,352 @@
+<view autoCancelInterval="90" isVisible="true" onunloadCancelJobs="true" refresh="-1" template="dashboard.html">
+	<label>WLS Server Overview</label>
+  	<module name="SideviewUtils" layoutPanel="appHeader" />
+  	<module name="AccountBar" layoutPanel="appHeader"/>
+  	<module name="AppBar" layoutPanel="navigationHeader"/>
+  	<module name="Message" layoutPanel="messaging">
+    <param name="filter">*</param>
+    <param name="clearOnJobDispatch">False</param>
+    <param name="maxSize">1</param>
+    </module>
+  	<module name="DashboardTitleBar" layoutPanel="viewHeader"/>
+  	<module name="Message" layoutPanel="navigationHeader">
+    <param name="filter">splunk.search.job</param>
+    <param name="clearOnJobDispatch">True</param>
+    <param name="maxSize">1</param>
+    <param name="level">warn</param>
+    </module>
+  
+	<module name="URLLoader" layoutPanel="viewHeader" autoRun="True">    
+ 		<!-- Domain and Server drop downs -->
+		<module name="Search" layoutPanel="panel_row1_col1" autoRun="True">
+ 			<!-- <param name="useHistory">true</param>  -->
+			<param name="search">| inputlookup domains.csv</param>  
+    
+    		<module name="HTML">
+       			<param name="html"><![CDATA[
+          			<h4>The dropdowns below shows all of the WebLogic domains and servers that Splunk currently has collected information on. If you wish to inspect other domains or servers, please choose them below.</h3>
+        			]]>
+        		</param>
+   			</module>
+
+      		<module name="Pulldown">
+				<param name="name">domain</param>
+				<param name="float">left</param>
+				<param name="label">Domain</param>
+				<param name="staticOptions">
+					<list>
+						<param name="label">Select One...</param>
+						<param name="value">n/a</param>
+					</list>
+					<list>
+						<param name="label">All</param>
+						<param name="value">*</param>
+					</list>
+				</param>
+				<param name="valueField">$name$</param>
+	
+				<module name="Search" layoutPanel="panel_row1_col1" autoRun="True">
+					<!-- <param name="useHistory">true</param>  -->
+					<!-- The search below which returns a list of servers for the selected domains should be able to be found based on information from the Minute script.  Search goes back 4 hours to ensure that servers are discovered, but not for a whole day because of performance implications  -->
+					<param name="search">`index_wls` `sourcetype_wls_jmx` earliest=-4h domain=$domain$ server=* | dedup server | sort server | fields server</param>    
+					<module name="Pulldown">
+						<param name="name">server</param>
+						<param name="float">left</param>
+						<param name="label">Server</param>
+						<param name="staticOptions">
+							<list>
+								<param name="label">Select One...</param>
+								<param name="value">n/a</param>
+							</list>
+						</param>		
+						<param name="valueField">$name$</param>
+						
+						<module name="TimeRangePicker" layoutPanel="panel_row1_col1">
+	  						<param name="searchWhenChanged">True</param>
+          					<param name="selected">Last 60 minutes</param>
+				  
+							<!-- START Panels -->				  
+							<module name="Search" layoutPanel="panel_row2_col1" group="% JVM Heap Used">  <!-- Search - "%JVM Heap Used" -->
+								<param name="search">`index_wls` `sourcetype_wls_jmx`  server=$server$  heap_free_percent=* | eval used_mem = (100 - heap_free_percent)
+								| timechart max(used_mem) AS "% heap used" by domain
+								</param>
+								<module name="HiddenChartFormatter">
+									<param name="charting.axisTitleY.text">% Used</param>
+									<param name="charting.secondaryAxis.minimumNumber">""</param>
+									<param name="charting.chart">area</param>
+									<param name="charting.chart.stackMode">default</param>
+									<param name="charting.legend.placement">bottom</param>
+									<param name="charting.chart.nullValueMode">connect</param>
+									<param name="charting.axisTitleX.text">Time</param>
+									<param name="charting.secondaryAxis.maximumNumber">""</param>
+									<param name="charting.secondaryAxis.scale">""</param>
+									<param name="charting.layout.splitSeries">false</param>
+									<module name="JSChart">
+										<param name="width">100%</param>
+										<module name="Gimp"/>
+										<!-- 
+										<module name="ConvertToDrilldownSearch">
+											<module name="Redirector">
+											  	<param name="url">server_drilldown_system_health</param>
+											 	<param name="arg.server">$server$</param>
+											  	<param name="arg.machine">$machine$</param>
+											</module>
+										</module> -->
+									</module>
+									<module name="ViewRedirectorLink">
+										<param name="viewTarget">flashtimeline</param>
+									</module>
+								</module> <!-- Hidden Chart Formatter --> 
+							</module>  <!-- Search - "%JVM Heap Used" -->
+					
+							<module name="Search" layoutPanel="panel_row2_col2" group="Application Status" autoRun="True">  <!-- Search - "Application Status" --> 
+								<!-- The search below goes over the last 15 min. since the panel is showing current status at that moment and not a trend of status, the search time period should not be affected by the page's time range picker -->
+								<param name="search">`index_wls` `sourcetype_wls_jmx` earliest=-15m domain=$domain$ server=$server$ app=* | dedup app | table app app_state | rename app AS "Application Name" app_state AS "Application State" | replace STATE_ACTIVE with ACTIVE, STATE_DOWN with DOWN</param>
+								<param name="groupLabel">Application Status</param>
+								<module name="ViewstateAdapter">
+									<param name="suppressionList">
+										<item>count</item>
+										<item>displayRowNumbers</item>
+								  	</param>    
+								  	<module name="HiddenFieldPicker">
+										<param name="strictMode">True</param>
+										<module name="JobProgressIndicator"/>
+										<module name="Paginator">
+											<param name="count">10</param>
+									  		<param name="entityName">results</param>
+									  		<module name="EnablePreview">
+												<param name="enable">True</param>
+												<param name="display">False</param>
+												<module name="SimpleResultsTable">
+										  			<param name="count">10</param>
+										  			<param name="entityName">results</param>
+										  			<param name="allowTransformedFieldSelect">True</param>
+										  			<param name="drilldown">row</param>
+										  			<param name="displayRowNumbers">true</param>
+													<module name="Redirector">
+										  				<param name="url">applications</param>
+										  				<param name="arg.domain">$domain$</param>
+										  				<param name="arg.app">$click.fields.Application Name$</param>
+													</module>
+									  			</module>
+											</module>
+								  		</module>
+								  		<module name="ViewRedirectorLink">
+											<param name="viewTarget">flashtimeline</param>
+								  		</module>
+									</module>
+								</module>
+							</module>  <!-- Search - "Application Status" --> 
+					
+							<module name="Search" layoutPanel="panel_row3_col1" group="JMS Queue Status" autoRun="True">  <!-- Search - JMS Queue Status -->
+								<param name="search">`index_wls` `sourcetype_wls_jmx` domain=$domain$ server=$server$ jms_pending_messages_count=* jms_current_messages_count=* | timechart max(jms_pending_messages_count) max(jms_current_messages_count) | rename max(jms_pending_messages_count) AS "Pending Messages" max(jms_current_messages_count) AS "Current Messages" 
+								</param>
+								<param name="groupLabel">JMS Queue Status</param>
+								<module name="ViewstateAdapter">
+									<param name="suppressionList">
+										<item>count</item>
+										<item>charting.axisTitleY.text</item>
+										<item>charting.secondaryAxis.minimumNumber</item>
+										<item>charting.chart</item>
+										<item>charting.chart.stackMode</item>
+										<item>charting.secondaryAxisTitle.text</item>
+										<item>charting.legend.placement</item>
+										<item>charting.primaryAxisTitle.text</item>
+										<item>displayRowNumbers</item>
+										<item>charting.chart.nullValueMode</item>
+										<item>charting.axisTitleX.text</item>
+										<item>charting.secondaryAxis.maximumNumber</item>
+										<item>drilldown</item>
+										<item>charting.secondaryAxis.scale</item>
+										<item>charting.layout.splitSeries</item>
+									</param>
+									<module name="HiddenFieldPicker">
+										<param name="strictMode">True</param>
+										<module name="JobProgressIndicator">
+											<module name="EnablePreview">
+												<param name="enable">True</param>
+												<param name="display">False</param>
+												<module name="HiddenChartFormatter">
+													<param name="charting.axisTitleY.text">Count</param>
+													<param name="charting.secondaryAxis.minimumNumber">""</param>
+													<param name="charting.chart">line</param>
+													<param name="charting.chart.stackMode">default</param>
+													<param name="charting.legend.placement">bottom</param>
+													<param name="charting.chart.nullValueMode">connect</param>
+													<param name="charting.axisTitleX.text">Time</param>
+													<param name="charting.secondaryAxis.maximumNumber">""</param>
+													<param name="charting.secondaryAxis.scale">""</param>
+													<param name="charting.layout.splitSeries">false</param>
+													<module name="JSChart">
+														<param name="width">100%</param>
+														<module name="Gimp"/>
+														<module name="ConvertToDrilldownSearch">
+															<module name="Redirector">
+																<param name="url">server_drilldown_jmsq</param>
+																<param name="arg.server">$server$</param>
+																<param name="arg.domain">$domain$</param>
+															</module>
+														</module>
+													</module>
+													<module name="ViewRedirectorLink">
+														<param name="viewTarget">flashtimeline</param>
+								  					</module>
+												</module>  <!-- Hidden Chart Formatter -->
+											</module>  <!-- Enable Preview -->
+										</module>  <!-- Job Progess Indicator -->
+									</module> <!-- Hidden Field Picker -->
+								</module> <!-- View State Adapter -->
+							</module>  <!-- Search - JMS Queue Status --> 
+					
+							<module name="Search" layoutPanel="panel_row3_col2" group="Request Queue Status" autoRun="True">  <!-- Search - Request Queue Status -->
+								<param name="search">`index_wls` `sourcetype_wls_jmx` domain=$domain$ server=$server$ hogging_threads=* pending_reqs=* total_threads=* | timechart max(hogging_threads) max(pending_reqs) max(total_threads) | rename max(hogging_threads) AS "Hogging Threads" max(pending_reqs) AS "Pending Reqs" max(total_threads) AS "Total Threads"
+								</param>
+								<param name="groupLabel">Request Queue Status</param>
+									<module name="ViewstateAdapter">
+										<param name="suppressionList">
+											<item>count</item>
+											<item>charting.axisTitleY.text</item>
+											<item>charting.secondaryAxis.minimumNumber</item>
+											<item>charting.chart</item>
+											<item>charting.chart.stackMode</item>
+											<item>charting.secondaryAxisTitle.text</item>
+											<item>charting.legend.placement</item>
+											<item>charting.primaryAxisTitle.text</item>
+											<item>displayRowNumbers</item>
+											<item>charting.chart.nullValueMode</item>
+											<item>charting.axisTitleX.text</item>
+											<item>charting.secondaryAxis.maximumNumber</item>
+											<item>drilldown</item>
+											<item>charting.secondaryAxis.scale</item>
+											<item>charting.layout.splitSeries</item>
+										</param>
+										<module name="HiddenFieldPicker">
+											<param name="strictMode">True</param>
+											<module name="JobProgressIndicator">
+												<module name="EnablePreview">
+													<param name="enable">True</param>
+													<param name="display">False</param>
+													<module name="HiddenChartFormatter">
+								 						<param name="charting.axisTitleY.text">Count</param>
+								  						<param name="charting.secondaryAxis.minimumNumber">""</param>
+								  						<param name="charting.chart">line</param>
+								  						<param name="charting.chart.stackMode">default</param>
+								  						<param name="charting.legend.placement">bottom</param>
+								  						<param name="charting.chart.nullValueMode">connect</param>
+								  						<param name="charting.axisTitleX.text">Time</param>
+								  						<param name="charting.secondaryAxis.maximumNumber">""</param>
+								  						<param name="charting.secondaryAxis.scale">""</param>
+								  						<param name="charting.layout.splitSeries">false</param>
+								  						<module name="JSChart">
+															<param name="width">100%</param>
+															<module name="Gimp"/>
+															<!-- 
+															<module name="ConvertToDrilldownSearch">
+									  							<module name="ViewRedirector">
+																	<param name="viewTarget">server_drilldown_TBD</param>
+									  							</module>
+															</module> 
+															-->
+								  						</module>
+								  						<module name="ViewRedirectorLink">
+															<param name="viewTarget">flashtimeline</param>
+								  						</module>
+													</module>  <!-- Hidden Chart Formatter -->
+												</module>  <!-- Enable Preview -->
+											</module>  <!-- Job Progress Indicator -->
+										</module>  <!-- Hidden Field Picker -->
+									</module>  <!-- View State Adapter -->
+								</module>  <!-- Search - Request Queue Status --> 
+					
+							<module name="Search" layoutPanel="panel_row4_col1" group="JDBC Data Sources" autoRun="True">  <!-- Search - JDBC Data Sources -->
+								<!-- The search below goes over the last 15 min. since the panel is showing current status at that moment and not total connections or a trend of connections, the search time period should not be affected by the page's time range picker -->
+								<param name="search">`index_wls` `sourcetype_wls_jmx` jdbc_datasource_name=* domain=$domain$ server=$server$ earliest=-15m | dedup jdbc_datasource_name | table jdbc_datasource_name  jdbc_active_connection_count | rename jdbc_datasource_name AS "Data Source Name" jdbc_active_connection_count AS "Active Connections"
+								</param>
+								<param name="groupLabel">JDBC Data Sources</param>
+									<module name="ViewstateAdapter">
+										<param name="suppressionList">
+											<item>count</item>
+											<item>displayRowNumbers</item>
+										</param>
+										<module name="HiddenFieldPicker">
+											<param name="strictMode">True</param>
+											<module name="JobProgressIndicator"/>
+											<module name="Paginator">
+												<param name="count">50</param>
+												<param name="entityName">results</param>
+												<module name="EnablePreview">
+													<param name="enable">True</param>
+													<param name="display">False</param>
+													<module name="SimpleResultsTable">
+														<param name="count">50</param>
+														<param name="entityName">results</param>
+														<param name="allowTransformedFieldSelect">True</param>
+														<param name="drilldown">row</param>
+														<param name="displayRowNumbers">true</param>
+														<module name="Gimp"/>
+														<module name="ConvertToDrilldownSearch">
+															<module name="ViewRedirector">
+																<param name="viewTarget">flashtimeline</param>
+															</module>
+														</module>
+													</module>
+													<module name="ViewRedirectorLink">
+														<param name="viewTarget">flashtimeline</param>
+													</module>
+												</module>  <!-- Enable Preview -->
+											</module>  <!-- Paginator -->
+										</module>  <!-- Hidden Field Picker -->  
+									</module>  <!-- View State Adapter -->
+								</module>  <!-- Search - JDBC Data Sources --> 
+					
+							<module name="Search" layoutPanel="panel_row4_col2" group="Errors, Alerts, and Warnings" autoRun="True">  <!-- Search - Errors, Alerts, and Warnings -->
+								<param name="search">`index_wls` `sourcetype_wls_admin` OR `sourcetype_wls_managed` server=$server$ severity="Alert" OR severity="Critical" OR severity="Error" OR severity="Warning" 
+								| chart count by severity | rename severity AS Severity
+								</param>
+								<module name="ViewstateAdapter">
+									<param name="suppressionList">
+										<item>count</item>
+										<item>charting.chart</item>
+										<item>displayRowNumbers</item>
+									</param>
+									<module name="HiddenFieldPicker">
+										<param name="strictMode">True</param>
+										<module name="JobProgressIndicator">
+											<module name="EnablePreview">
+												<param name="enable">True</param>
+												<param name="display">False</param>
+												<module name="HiddenChartFormatter">
+								  					<param name="charting.chart">pie</param>
+								  					<module name="JSChart">
+														<param name="width">100%</param>
+														<module name="Gimp"/>
+														<module name="ConvertToDrilldownSearch">
+									  						<module name="ViewRedirector">
+																<param name="viewTarget">flashtimeline</param>
+									  						</module>
+														</module>
+								  					</module>
+								  					<module name="ViewRedirectorLink">
+														<param name="viewTarget">flashtimeline</param>
+								  					</module>
+												</module>  <!-- Hidden Chart Formatter -->
+											</module>  <!-- Enable Preview -->
+										</module>  <!-- Job Progress Indicator -->
+									</module>  <!-- Hidden Field Picker -->
+								</module>  <!-- View State Adapter -->
+							</module>  <!-- Search - Errors, Alerts, Warnings -->
+							<!-- END Panels -->
+							
+						</module> <!-- Time Range Picker -->
+				
+					</module> <!-- Pulldown Server List -->
+				
+				</module> <!-- Search in row1 col1, Servers List  -->
+      
+  			</module> <!-- Pulldown Domain List -->
+  
+  		</module> <!-- Search -->
+  
+	</module> <!-- URLLoader Module-->
+  
+</view>
