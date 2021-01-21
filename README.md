@@ -196,10 +196,10 @@ Here are some steps to help troubleshoot the installation of the technology add-
 
    **Note:** If it is not enabled, then enable it on the deployment server and re-deploy the TA to the forwarder.
 
-4. In inputs.conf of Windows TA, for the section where it runs python to WLST for EVERY MINUTE, EVERY HOUR and EVERY DAY, if full path to the TA is intended to be mentioned versus $SPLUNK_HOME, make sure to use "C:PROGRA~1\" instead of "C:Program Files" as the script does not like space. 
+4. In inputs.conf of Windows TA, for the section where it runs python to WLST for EVERY MINUTE, EVERY HOUR and EVERY DAY, if full path to the TA is intended to be mentioned versus $SPLUNK_HOME, make sure to use "C:\PROGRA~1\" instead of "C:\Program Files" as the script does not like space. 
 ```
 #EVERY MINUTE
-[script://.\bin\runWlstScriptsMinute.cmd C:PROGRA~1\SplunkUniversalForwarder\etc\apps\WLS_Admin_Win_TA  D:\Oracle\Middleware]
+[script://.\bin\runWlstScriptsMinute.cmd C:\PROGRA~1\SplunkUniversalForwarder\etc\apps\WLS_Admin_Win_TA  D:\Oracle\Middleware]
 index = weblogic
 interval = 60
 sourcetype = wls_trash
