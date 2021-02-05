@@ -127,7 +127,7 @@ Configure the WLS_AdminsServer* TAs to allow the scripts within the TA to run su
    </server>
    ```
    In the "wlsCollectData*.py" files, the "admin_url" would be set as the following:  
-   ```
+   ```python
    admin_url = "t3://host123.acme.com:" + adminsvrport
    ```
 
@@ -137,7 +137,8 @@ Configure the WLS_AdminsServer* TAs to allow the scripts within the TA to run su
    In order to create myuserconfigfile.secure and  myuserkeyfile.secure, execute "storeUserConfig('/someDirectory/MyUserConfigFile','/someDirectory/MyUserKeyFile')" after invoking WLST and connecting to admin console in weblogic environment.
 
    
-   ```   connect(userConfigFile='/somedirectory/myuserconfigfile.secure', userKeyFile='/somedirectory/myuserkeyfile.secure',url=admin_url,adminServerName=adminsvr)
+   ```python
+   connect(userConfigFile='/somedirectory/myuserconfigfile.secure', userKeyFile='/somedirectory/myuserkeyfile.secure',url=admin_url,adminServerName=adminsvr)
    ```
    
 
@@ -166,7 +167,8 @@ Configure the WLS_AdminsServer* TAs to allow the scripts within the TA to run su
    In order to create myuserconfigfile.secure and  myuserkeyfile.secure, execute "storeUserConfig('C:\someDirectory\MyUserConfigFile','C:\someDirectory\MyUserKeyFile')" after invoking WLST and connecting to admin console in weblogic environment.
 
    
-   ```   connect(userConfigFile='C:\someDirectory\MyUserConfigFile','C:\someDirectory\MyUserKeyFile',url=admin_url,adminServerName=adminsvr)
+   ```python
+   connect(userConfigFile='C:\someDirectory\MyUserConfigFile','C:\someDirectory\MyUserKeyFile',url=admin_url,adminServerName=adminsvr)
    ```
 
 
