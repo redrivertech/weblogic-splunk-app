@@ -11,9 +11,12 @@ adminsvrport = os.environ['ADMIN_PORT_'+curr_index]
 
 admin_url = "t3://localhost:" + adminsvrport
 
-# this connect method requires the WLST be invoked from the domain directory
-connect(url=admin_url,adminServerName=adminsvr)
 
+# below  connect method requires the WLST be invoked from the domain directory and uses encrypted credentials to avoid plantext credentials; userConfigFile and userKeyFile can be created using StoreUserConfig using WLST
+connect(userConfigFile='/somedirectory/myuserconfigfile.secure', userKeyFile='/somedirectory/myuserkeyfile.secure',url=admin_url,adminServerName=adminsvr)
+
+# below connect method can be used if plaintext credentials is used
+# connect('username','password',url=admin_url,adminServerName=adminsvr) 
 
 splunkHomeDir = ''
 try:  
@@ -73,6 +76,7 @@ if (len(servers) > 0):
 		datasources = jdbcRuntime.getJDBCDataSourceRuntimeMBeans();
 		for datasource in datasources:
 			jdbcDataStr = "domain=%s|server=%s" % ( domainRuntime.getName(), server.getName() )
+            jdbcDataStr = jdbcDataStr + "|jdbc_datasource_state=%s" % ( repr(datasource.getState()) )
 			jdbcDataStr = jdbcDataStr + "|jdbc_datasource_name=%s|jdbc_active_connection_count=%s" % ( datasource.getName(), repr(datasource.getActiveConnectionsCurrentCount()) )
 			jdbcDataStr = jdbcDataStr + "|jdbc_connection_waiting_count=%s" % ( repr(datasource.getWaitingForConnectionCurrentCount()) )
 			jdbcDataStr = jdbcDataStr + "|jdbc_available_connections=%s" % ( repr(datasource.getNumAvailable()) )

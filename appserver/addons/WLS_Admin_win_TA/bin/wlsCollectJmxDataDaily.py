@@ -11,8 +11,11 @@ adminsvrport = os.environ['ADMIN_PORT_'+curr_index]
 
 admin_url = "t3://localhost:" + adminsvrport
 
-# this connect method requires the WLST be invoked from the domain directory
-connect(url=admin_url,adminServerName=adminsvr)
+# below  connect method requires the WLST be invoked from the domain directory and uses encrypted credentials to avoid plantext credentials; userConfigFile and userKeyFile can be created manually using StoreUserConfig using WLST: more in README
+connect(userConfigFile='D:\somedirectory\myuserconfigfile.secure', userKeyFile='D:\somedirectory\myuserkeyfile.secure',url=admin_url,adminServerName=adminsvr)
+
+# this connect method requires the WLST be invoked from the domain directory and below connect method uses plain text credentails
+#connect(url=admin_url,adminServerName=adminsvr)
 
 
 splunkHomeDir = ''
