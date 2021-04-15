@@ -2,7 +2,6 @@
 [Introduction](#introduction)  
 [Technology Add‐on Requirements](#technology-addon-requirements)  
 [Before Getting Started](#before-getting-started)  
-[Deploy the Oracle WebLogic App for Splunk](#deploy-the-oracle-weblogic-app-for-splunk)  
 [Install the Technology Add-ons and the App](#install-the-technology-add-ons-and-the-app)  
 [Configure the Admin Server TAs](#configure-the-adminserver-tas)  
 [For \*Nix Environments](#for-nix-environments)  
@@ -23,8 +22,7 @@ The app itself, inclusive of the TAs, is highly dynamic as well as independent t
 ## Before Getting Started
 Since the TAs rely heavily on the interaction between a Splunk forwarder and WLS, the service accounts that run these applications will require access to each other's file paths. While both applications are often run by local system in a Windows environment, in a Unix environment these applications are more often run by separate service accounts. In this event, the Splunk and WebLogic service accounts will require full access to each other's respective application file paths.
 
-## Deploy the Oracle WebLogic App for Splunk
-There are only a couple of steps you will need to take to successfully install the Oracle WebLogic App for Splunk. First, you will need to install all of the TAs to their proper locations and perform some slight configuration changes. Then, you will need to configure your core Splunk instance to properly receive, index, and present the WLS data.
+
 
 ## Install the Technology Add-ons and the App
 1. Download the Oracle WebLogic App for Splunk from Splunkbase and unpack it to an accessible location.
@@ -230,17 +228,7 @@ This section will review each TA and the configuration files that are within the
   - To disable inputs, change "disabled = false" to "disabled = true"
 - Data is indexed in the "wls" index, which is native to the Oracle WebLogic App for Splunk.
 
-***Core TA:***
-- indexes.conf - creates the "wls" and "os" indexes.
-  - Indexes are set to go to the default $SPLUNK_DB directory. If you are using a different path, copy the indexes.conf in /default and place it in /local and make your updates there.
-- props.conf - includes all index time and search time props.
-  - To make changes to this configuration file, copy the version in /default and place it in /local and make all updates to that version only.
-- transforms.conf - includes all  tranformations necessary for the indexer(s) and the search head(s) to index and interpret the WLS data.
-  - To make changes to this configuration file, copy the version in /default and place it in /local and make all updates to that version only.
-- eventtypes.conf - knowledge objects used to enhance the Oracle WebLogic App for Splunk app.
-  - To make changes to this configuration file, copy the version in /default and place it in /local and make all updates to that version only.
-- tags.conf - knowledge objects used to enhance the Oracle WebLogic App for Splunk app.
-  - To make changes to this configuration file, copy the version in /default and place it in /local and make all updates to that version only.
+
 
 ## Troubleshooting, Support, & Feature Enhancements ##
 We welcome the opportunity to work with you and help overcome any hurdle in your path to a successful deployment. The Oracle WebLogic App for Splunk as passed three private beta releases and the Public Beta has been available for a few months and has received positive reviews. This General Availability 1.0 is designed to ensure that the most commonly desired features are included. If you would like additional features or wish to report a bug, please submit an issue.
