@@ -1,4 +1,0 @@
-index,host,source,sourcetype,"_raw","_time"
-os,"kc-app-01",vmstat,vmstat,"memTotalMB   memFreeMB   memUsedMB  memFreePct  memUsedPct   pgPageOut  swapUsedPct   pgSwapOut   cSwitches  interrupts       forks   processes     threads  loadAvg1mi
-      8192        2064        6128        25.2        74.8    10788361         39.1           ?           ?           ?           ?         143         814        1.77","1358985582"
-
