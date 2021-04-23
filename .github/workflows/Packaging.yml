@@ -21,14 +21,14 @@ jobs:
 
       - name: Generate manifest
         run: |
-          slim generate-manifest . -o app.manifest
+          slim generate-manifest $GITHUB_WORKSPACE -o app.manifest
           cat app.manifest
 
       - name: Validate
         run: |
-          slim validate .
+          slim validate $GITHUB_WORKSPACE
 
       - name: Package
         run: |
           cd ..
-          slim package -o out .
+          slim package -o ../out $GITHUB_WORKSPACE
