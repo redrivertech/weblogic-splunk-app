@@ -1,0 +1,23 @@
+name: Packaging
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE
+      - uses: actions/checkout@v2
+
+      - name: Install toolkit
+        run: pip install splunk-packaging-toolkit
+
+      - name: Generate manifest
+        run: slim generate-manifest weblogic-splunk-app -o app.manifest
+
+      - name: Validate
+        run: slim validate weblogic-splunk-app
+
+      - name: Package
+        run: slim package -o out weblogic-splunk-app
