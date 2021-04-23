@@ -25,12 +25,13 @@ jobs:
           mv weblogic-splunk-app RedRiver_WebLogicServer
           slim generate-manifest RedRiver_WebLogicServer -o RedRiver_WebLogicServer/app.manifest
           cat RedRiver_WebLogicServer/app.manifest
+          pwd
 
       - name: Validate
         run: |
-          ls -al
+          pwd
           cd RedRiver_WebLogicServer
-          ls -al
+          pwd
           slim validate ./
 
       - name: Package
