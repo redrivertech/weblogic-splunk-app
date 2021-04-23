@@ -29,7 +29,8 @@ jobs:
       - name: Validate
         run: |
           cd RedRiver_WebLogicServer
-          slim validate .
+          ls -al
+          slim validate ./
 
       - name: Package
         run: |
