@@ -22,17 +22,15 @@ jobs:
       - name: Generate manifest
         run: |
           cd ..
-          mv weblogic-splunk-app RedRiver_WebLogicServer
-          slim generate-manifest RedRiver_WebLogicServer -o RedRiver_WebLogicServer/app.manifest
-          cat RedRiver_WebLogicServer/app.manifest
-          pwd
+          slim generate-manifest weblogic-splunk-app -o weblogic-splunk-app/app.manifest
+          cat weblogic-splunk-app/app.manifest
 
       - name: Validate
         run: |
-          cd /home/runner/work/weblogic-splunk-app/RedRiver_WebLogicServer
+          cd weblogic-splunk-app
           slim validate .
 
       - name: Package
         run: |
           cd ..
-          slim package -o out RedRiver_WebLogicServer
+          slim package -o out weblogic-splunk-app
