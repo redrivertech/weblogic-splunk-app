@@ -27,7 +27,11 @@ jobs:
           cat RedRiver_WebLogicServer/app.manifest
 
       - name: Validate
-        run: slim validate RedRiver_WebLogicServer
+        run: |
+          cd RedRiver_WebLogicServer
+          slim validate .
 
       - name: Package
-        run: slim package -o out RedRiver_WebLogicServer
+        run: |
+          cd ..
+          slim package -o out RedRiver_WebLogicServer
