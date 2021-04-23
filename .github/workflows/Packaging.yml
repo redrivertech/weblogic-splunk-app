@@ -21,6 +21,8 @@ jobs:
 
       - name: Generate manifest
         run: |
+          ls -al
+          echo $GITHUB_WORKSPACE
           mv $GITHUB_WORKSPACE RedRiver_WebLogicServer
           slim generate-manifest RedRiver_WebLogicServer -o app.manifest
           cat RedRiver_WebLogicServer/app.manifest
