@@ -29,10 +29,8 @@ jobs:
 
       - name: Validate
         run: |
-          pwd
-          cd RedRiver_WebLogicServer
-          pwd
-          slim validate ./
+          cd /home/runner/work/weblogic-splunk-app/RedRiver_WebLogicServer
+          slim validate .
 
       - name: Package
         run: |
