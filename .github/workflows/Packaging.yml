@@ -21,11 +21,12 @@ jobs:
 
       - name: Generate manifest
         run: |
-          slim generate-manifest $GITHUB_WORKSPACE -o app.manifest
-          cat $GITHUB_WORKSPACE/app.manifest
+          mv $GITHUB_WORKSPACE RedRiver_WebLogicServer
+          slim generate-manifest RedRiver_WebLogicServer -o app.manifest
+          cat RedRiver_WebLogicServer/app.manifest
 
       - name: Validate
-        run: slim validate $GITHUB_WORKSPACE
+        run: slim validate RedRiver_WebLogicServer
 
       - name: Package
-        run: slim package -o out $GITHUB_WORKSPACE
+        run: slim package -o out RedRiver_WebLogicServer
