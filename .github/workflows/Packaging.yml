@@ -21,16 +21,14 @@ jobs:
 
       - name: Generate manifest
         run: |
-          cd ..
-          slim generate-manifest weblogic-splunk-app -o weblogic-splunk-app/app.manifest
-          cat weblogic-splunk-app/app.manifest
+          slim generate-manifest . -o app.manifest
+          cat app.manifest
 
       - name: Validate
         run: |
-          cd weblogic-splunk-app
           slim validate .
 
       - name: Package
         run: |
           cd ..
-          slim package -o out weblogic-splunk-app
+          slim package -o out .
