@@ -17,14 +17,12 @@ jobs:
           rm $GITHUB_WORKSPACE/.gitignore
 
       - name: Install toolkit
-        run: |
-          pip install splunk-packaging-toolkit
-          sudo apt-get install jq
+        run: pip install splunk-packaging-toolkit
 
       - name: Generate manifest
         run: |
           slim generate-manifest $GITHUB_WORKSPACE -o app.manifest
-          jq '.[0].targetWorkloads |= ["_forwarders"]
+          cat <<< $(jq '.[0].targetWorkloads |= ["_forwarders"]' app.manifest) > app.manifest
           cat app.manifest
 
       - name: Validate
