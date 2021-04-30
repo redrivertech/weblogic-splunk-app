@@ -20,7 +20,7 @@ jobs:
         run: pip install splunk-packaging-toolkit
 
       - name: Generate manifest
-        # generates manifest, adds workload to json, and then trims off ines starting with '#'
+        # generates manifest, trims off lines starting with '#', and then adds workload to json
         run: |
           slim generate-manifest $GITHUB_WORKSPACE -o app.manifest
           sed -i '/#/,$d' app.manifest
@@ -35,3 +35,9 @@ jobs:
         run: |
           cd ..
           slim package -o ../out $GITHUB_WORKSPACE
+
+      - name: Archive package
+        uses: actions/upload-artifact@v2
+        with:
+          name: code-coverage-report
+          path: ../output
