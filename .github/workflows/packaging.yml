@@ -24,7 +24,7 @@ jobs:
         run: |
           slim generate-manifest $GITHUB_WORKSPACE -o app.manifest
           sed -i '/#/,$d' app.manifest
-          cat <<< $(jq '.[0].targetWorkloads |= ["_forwarders"]' app.manifest) > app.manifest
+          cat <<< $(jq '.targetWorkloads |= ["_forwarders"]' app.manifest) > app.manifest
           cat app.manifest
 
       - name: Validate
