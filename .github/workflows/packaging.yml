@@ -20,9 +20,11 @@ jobs:
         run: pip install splunk-packaging-toolkit
 
       - name: Generate manifest
+        # generates manifest, adds workload to json, and then trims off ines starting with '#'
         run: |
           slim generate-manifest $GITHUB_WORKSPACE -o app.manifest
           cat <<< $(jq '.[0].targetWorkloads |= ["_forwarders"]' app.manifest) > app.manifest
+          sed -i '/#/,$d' app.manifest
           cat app.manifest
 
       - name: Validate
