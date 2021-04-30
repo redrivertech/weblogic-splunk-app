@@ -32,12 +32,10 @@ jobs:
           slim validate $GITHUB_WORKSPACE
 
       - name: Package
-        run: |
-          cd ..
-          slim package -o out $GITHUB_WORKSPACE
+        run: slim package -o out $GITHUB_WORKSPACE
 
       - name: Archive package
         uses: actions/upload-artifact@v2
         with:
           name: package
-          path: $GITHUB_WORKSPACE/out
+          path: out
