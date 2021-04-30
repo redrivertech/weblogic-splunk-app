@@ -39,5 +39,5 @@ jobs:
       - name: Archive package
         uses: actions/upload-artifact@v2
         with:
-          name: code-coverage-report
-          path: out
+          name: package
+          path: $GITHUB_WORKSPACE/out
