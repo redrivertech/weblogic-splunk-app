@@ -80,6 +80,7 @@ if (len(servers) > 0):
 			jdbcDataStr = jdbcDataStr + "|jdbc_datasource_name=%s|jdbc_active_connection_count=%s" % ( datasource.getName(), repr(datasource.getActiveConnectionsCurrentCount()) )
 			jdbcDataStr = jdbcDataStr + "|jdbc_connection_waiting_count=%s" % ( repr(datasource.getWaitingForConnectionCurrentCount()) )
 			jdbcDataStr = jdbcDataStr + "|jdbc_available_connections=%s" % ( repr(datasource.getNumAvailable()) )
+            jdbcDataStr = jdbcDataStr + "|jdbc_unavailable_connections=%s" % ( repr(datasource.getNumUnavailable()) )
 			writeServerData(jdbcDataStr)
 
 		userLockRuntime = server.getServerSecurityRuntime().getDefaultRealmRuntime().getUserLockoutManagerRuntime();
